@@ -98,6 +98,29 @@ irqHandlers:
 jumpTable:
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
   .byte <irqh8, <irqh9
+  
+nops:                           // these nops are used to fine cycle irq routine to get stable irq
+  nop
+  nop
+  nop
+  nop
+  nop
+
+  nop
+  nop
+  nop
+  nop
+  nop
+  
+  nop
+  nop
+  nop
+  nop
+  nop
+  
+  nop
+  nop
+  jmp nops
 }
 
 :initCopper($f0, $00)           // just for testing
