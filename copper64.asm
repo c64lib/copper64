@@ -4,7 +4,7 @@
  * A library that realizes a copper-like functionality of firing certain predefined handlers 
  * at programmable raster lines. This library utilizes raster interrupt functionality of VIC-II.
  *
- * Author:    Maciej Małecki
+ * Author:    Maciej Malecki
  * GIT repo:  https://github.com/c64lib/copper64
  */
 #importonce
