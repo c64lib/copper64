@@ -6,12 +6,11 @@
 .filenamespace c64lib
 
 /*
- * Requires 3 bytes on zero page: 2 subsequent for listStart and 1 for listPtr
+ * Requires 2 bytes on zero page: 2 subsequent for listStart
  *
  * listStart - begin address of display list stored on zero page
- * listPtr - pointer (Y reg) od display list stored on zero page
  */
-.macro @initCopper(listStart, listPtr) {
+.macro @initCopper(listStart) {
 start:
   ldy #$00
   lda (listStart),y             // 5: < 1st byte - control
@@ -37,9 +36,10 @@ nextRaster8:
 loop:
   ldy #$00
   jmp start
-  
+
   .align $100
 irqHandlers:
+  .print "IRQ Handlers start at: " + toHexString(irqHandlers)
   irqh1:                        // (18) border color
     #if IRQH1
     lda (listStart),y           // 5
@@ -53,19 +53,25 @@ irqHandlers:
     jmp irqhReminder            // 3
     #endif
   irqh3:                        // (18) background color 1
-    // TODO use #define and #if directives to switch on only necessary sections
+    #if IRQH3
     lda (listStart),y           // 5
     sta BG_COL_1                // 4
     jmp irqhReminder            // 3
+    #endif
   irqh4:                        // (18) background color 2
+    #if IRQH4
     lda (listStart),y           // 5
     sta BG_COL_2                // 4
     jmp irqhReminder            // 3
+    #endif
   irqh5:                        // (18) background color 3
+    #if IRQH5
     lda (listStart),y           // 5
     sta BG_COL_3                // 4
     jmp irqhReminder            // 3
+    #endif
   irqh6:                        // (22) border and background color 0 same
+    // TODO use #define and #if directives to switch on only necessary sections
     lda (listStart),y           // 5
     sta BORDER_COL              // 4
     sta BG_COL_0                // 4
@@ -93,11 +99,17 @@ irqHandlers:
     iny                         // 2
   irqhReminder2Args:
     iny                         // 2
-  
+  .print "Size of aggregated code of IRQ handlers: " + [irqhReminder - irqh1] + " bytes."
+  .assert "Size of aggregated code of IRQ handlers must fit into one memory page (256b)", irqhReminder - irqh1 <= 256, true
   .align $100
 jumpTable:
+  .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
   .byte <irqh8, <irqh9
+jumpTableEnd:
+  .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
+  .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
+  // TODO maybe jumpTable and IRQh table can be merged into one common memory block
   
 nops:                           // these nops are used to fine cycle irq routine to get stable irq
   nop
@@ -123,4 +135,4 @@ nops:                           // these nops are used to fine cycle irq routine
   jmp nops
 }
 
-:initCopper($f0, $00)           // just for testing
+:initCopper($f0)           // just for testing
