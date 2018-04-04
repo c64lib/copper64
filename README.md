@@ -17,16 +17,16 @@ a following structure of 4 bytes:
 		<th>Offset</th><th>Code</th><th>Description</th>
 	</tr>
 	<tr>
-		<td>0</td><td>CTRL</td><td>Control byte</td><td>Specifies handler id and some additional data.</td>
+		<td>0</td><td>CTRL</td><td>Control byte; specifies handler id and some additional data.</td>
 	</tr>
 	<tr>
-		<td>1</td><td>RAS</td><td>Raster counter</td><td>Low 8 bits of raster counter. 9-th bit is stored in CTRL.</td>
+		<td>1</td><td>RAS</td><td>Raster counter; low 8 bits of raster counter. 9-th bit is stored in CTRL.</td>
 	</tr>
 	<tr>
-		<td>2</td><td>DAT1</td><td>Data byte 1</td><td>Depending on handler.</td>
+		<td>2</td><td>DAT1</td><td>Data byte 1</td>
 	</tr>
 	<tr>
-		<td>3</td><td>DAT2</td><td>Data byte 2</td><td>Depending on handler.</td>
+		<td>3</td><td>DAT2</td><td>Data byte 2</td>
 	</tr>
 </table>
 
