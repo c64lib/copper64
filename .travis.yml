@@ -4,6 +4,7 @@ before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/c64lib/travis-ci/master/install.sh)
 script:
   - ka -libdir cpm_modules copper64.asm
+  - ka -libdir cpm_modules copper64-test.asm
 notifications:
   email:
     on_success: change
