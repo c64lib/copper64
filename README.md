@@ -13,9 +13,9 @@ Copper64 operates on IRQ table consisting of IRQ entries. Each IRQ entry is
 a following structure of 4 bytes:
 
 <table>
-	<th>
-		<td>Offset</td><td>Code</td><td>Description</td>
-	</th>
+	<tr>
+		<th>Offset</th><th>Code</th><th>Description</th>
+	</tr>
 	<tr>
 		<td>0</td><td>CTRL</td><td>Control byte</td><td>Specifies handler id and some additional data.</td>
 	</tr>
