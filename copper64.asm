@@ -36,6 +36,10 @@
 .label IRQH_MODE                = 12
 .label IRQH_JSR                 = 13
 
+.label IRQH_CTRL_RASTER8        = %10000000
+.label IRQH_SKIP                = $00
+.label IRQH_LOOP                = $FF
+
 /*
  * Requires 3 bytes on zero page: 2 subsequent for listStart and 1 byte for list pointer (Y)
  *

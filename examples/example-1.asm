@@ -7,10 +7,17 @@
 #import "chipset/vic2.asm"
 #import "chipset/mos6510.asm"
 
+#define IRQH_BORDER_COL
+#define IRQH_BG_COL_0
+
 #import "../copper64.asm"
 
 .label IRQ_1 = 150
 .label IRQ_2 = 200
+
+.label DISPLAY_LIST_PTR_LO = $02
+.label DISPLAY_LIST_PTR_HI = $03
+.label LIST_PTR = $04
 
 .pc = $0801 "Basic Upstart"
 :BasicUpstart(start) // Basic start routine
@@ -48,6 +55,7 @@ start:
   :debugBorder(WHITE)
   
   cli
+  jsr copper
 block:
   jmp block
   
@@ -67,5 +75,17 @@ irq2: {
   
 irqFreeze: {
 	rti
+}
+
+copper: {
+  :initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
+  rts
+}
+
+.align $100
+copperList: {
+  .byte c64lib.IRQH_BORDER_COL, IRQ_1,  WHITE + 1,  $00
+  .byte c64lib.IRQH_BORDER_COL, IRQ_2,  WHITE,      $00
+  .byte c64lib.IRQH_LOOP,       $00,    $00,        $00
 }
 
