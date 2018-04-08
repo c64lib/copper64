@@ -5,6 +5,8 @@
  * at programmable raster lines. This library utilizes raster interrupt functionality of VIC-II.
  *
  * Author:    Maciej Malecki
+ * License:   MIT
+ * (c):       2018
  * GIT repo:  https://github.com/c64lib/copper64
  */
 #importonce
@@ -64,6 +66,8 @@
   sta c64lib.IRQ_LO
   lda #>copperIrq
   sta c64lib.IRQ_HI
+
+  // TODO better handling of nmi needed
   lda #<nmi
   sta c64lib.NMI_LO
   lda #>nmi
@@ -109,6 +113,7 @@ fetchNext:
 raster8:
   ora #CONTROL_1_RASTER8        // 2
 nextRaster8:
+  sta CONTROL_1
   lda (listStart),y             // 5: it is more efficient to load it once more (5) instead of tax,txa,ror (6)
   and #%00011111                // 2: clear not significant bits to get command id, max 30 values, value 0 is not used
   tax                           // 2
