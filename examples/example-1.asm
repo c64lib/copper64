@@ -29,15 +29,15 @@
 
 start:
   sei
-	:setRaster(IRQ_1)
-	lda #<irqFreeze
-	sta c64lib.IRQ_LO
-	lda #>irqFreeze
-	sta c64lib.IRQ_HI
-	lda #<irqFreeze
-	sta c64lib.NMI_LO
-	lda #>irqFreeze
-	sta c64lib.NMI_HI
+  :setRaster(IRQ_1)
+  lda #<irqFreeze
+  sta c64lib.IRQ_LO
+  lda #>irqFreeze
+  sta c64lib.IRQ_HI
+  lda #<irqFreeze
+  sta c64lib.NMI_LO
+  lda #>irqFreeze
+  sta c64lib.NMI_HI
   
   :configureMemory(c64lib.RAM_IO_RAM)
   
@@ -51,7 +51,7 @@ block:
   jmp block
   
 irqFreeze: {
-	rti
+  rti
 }
 
 copper: {
