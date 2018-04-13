@@ -13,9 +13,12 @@
 #define IRQH_BG_COL_0
 #define IRQH_BORDER_BG_0_COL
 #define IRQH_BORDER_BG_0_DIFF
+#define IRQH_MEM
+#define IRQH_MODE
 //#define VISUAL_DEBUG
 
 #import "chipset/mos6510.asm"
+#import "chipset/vic2.asm"
 #import "../copper64.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
@@ -42,6 +45,8 @@ start:
   // initialize copper64 routine
   jsr copper
 block:
+  nop
+  lda $ff00
   jmp block
   
 copper: {
@@ -54,8 +59,12 @@ copperList: {
   .byte c64lib.IRQH_BG_COL_0,         100,  YELLOW,     $00
   .byte c64lib.IRQH_BG_COL_0,         120,  RED,        $00
   .byte c64lib.IRQH_BG_COL_0,         144,  GREY,       $00
-  .byte c64lib.IRQH_BG_COL_0,         146,  BLUE,       $00
+  .byte c64lib.IRQH_BG_COL_0,         147,  BLUE,       $00
   .byte c64lib.IRQH_BORDER_COL,       161,  LIGHT_BLUE, $00
+  .byte c64lib.IRQH_MODE,             169,  $00, c64lib.CONTROL_2_MCM
+  .byte c64lib.IRQH_MEM,              195,  getTextMemory(0, 2), $00
+  .byte c64lib.IRQH_MEM,              211,  getTextMemory(1, 2), $00
+  .byte c64lib.IRQH_MODE,             215,  $00,        $00
   .byte c64lib.IRQH_BORDER_BG_0_COL,  220,  GREEN,      $00
   .byte c64lib.IRQH_BORDER_BG_0_DIFF, 241,  LIGHT_BLUE, BLUE
   .byte c64lib.IRQH_LOOP,             $00,  $00,        $00

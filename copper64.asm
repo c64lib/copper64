@@ -204,6 +204,25 @@ irqHandlers:
     sta MEMORY_CONTROL          // 4
     jmp irqhReminder            // 3
     #endif
+  irqh10:                       // mode mem bank
+    #if IRQH_MODE_MEM_BANK
+    #endif
+  irqh11:                       // mode mem
+    #if IRQH_MODE_MEM
+    #endif
+  irqh12:                       // mode control 1 | control 2
+    #if IRQH_MODE
+    lda CONTROL_1               // 4               
+    and #neg(CONTROL_1_ECM | CONTROL_1_BMM) // 3
+    ora (listStart),y           // 4
+    sta CONTROL_1               // 4
+    iny                         // 2
+    lda CONTROL_2               // 4
+    and #neg(CONTROL_2_MCM)     // 3
+    ora (listStart),y           // 4
+    sta CONTROL_2
+    jmp irqhReminder2Args       // 3
+    #endif
   irqhReminder:
     iny
   irqhReminder2Args:
@@ -226,7 +245,7 @@ irqHandlers:
 jumpTable:
   .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
-  .byte <irqh8, <irqh9
+  .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
