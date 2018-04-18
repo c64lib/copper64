@@ -43,6 +43,19 @@
 .label IRQH_SKIP                = $00
 .label IRQH_LOOP                = $FF
 
+.macro @copperEntry(raster, handler, arg1, arg2) {
+  .if (raster >= 256) {
+    .byte 128 + handler  
+  }  else {
+    .byte handler
+  }
+  .byte <raster, arg1, arg2
+}
+
+.macro @copperLoop() {
+  copperEntry(0, IRQH_LOOP, 0, 0)
+}
+
 /*
  * Requires 3 bytes on zero page: 2 subsequent for listStart and 1 byte for list pointer (Y)
  *
@@ -210,7 +223,7 @@ irqHandlers:
   irqh11:                       // mode mem
     #if IRQH_MODE_MEM
     #endif
-  irqh12:                       // mode control 1 | control 2
+  irqh12:                       // mode (control 1 | control 2)
     #if IRQH_MODE
     lda CONTROL_1               // 4               
     and #neg(CONTROL_1_ECM | CONTROL_1_BMM) // 3
@@ -222,6 +235,19 @@ irqHandlers:
     ora (listStart),y           // 4
     sta CONTROL_2
     jmp irqhReminder2Args       // 3
+    #endif
+  irqh13:                       // jsr (jsr address lo | lsr address hi)
+    #if IRQH_JSR
+    lda (listStart),y           // 4
+    sta irqh13jsr+1             // 4
+    iny                         // 2
+    lda (listStart),y           // 4
+    sta irqh13jsr+2             // 4
+    sty listPtr
+  irqh13jsr:
+    jsr $0000
+    ldy listPtr
+    jmp irqhReminder2Args
     #endif
   irqhReminder:
     iny
@@ -245,7 +271,7 @@ irqHandlers:
 jumpTable:
   .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
-  .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12
+  .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
