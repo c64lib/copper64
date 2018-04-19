@@ -8,7 +8,14 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 * master: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=master)](https://travis-ci.org/c64lib/copper64)
 * develop: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=develop)](https://travis-ci.org/c64lib/copper64)
 
-# IRQ handlers
+# Usage
+## Using as KickAssembler library
+
+## Define your own copper list
+
+## Initialize IRQ system
+
+# IRQ handlers reference
 ## Set border color
 Changes border color, the color can be specified as argument 1.
 <table>
