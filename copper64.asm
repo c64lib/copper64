@@ -208,8 +208,17 @@ irqHandlers:
   .print "IRQ Handlers start at: " + toHexString(irqHandlers)
   irqh1:                        // (22) border color
     #if IRQH_BORDER_COL
+      #if IRQH_BORDER_COL_STABLE
+        stabilize(irqh1Stabilized)
+      irqh1Stabilized:
+        txs
+        cycleRaster(7)
+      #endif
     lda (listStart),y           // 5
     sta BORDER_COL              // 4
+      #if IRQH_BORDER_COL_STABLE 
+        setMasterIrqHandler(copperIrq)
+      #endif
     jmp irqhReminder            // 3
     #endif
   irqh2:                        // (22) background color 0
