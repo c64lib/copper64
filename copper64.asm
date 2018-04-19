@@ -46,11 +46,16 @@
 /*
  * Stabilizes interrupt.
  */
-.macro stabilize(secondIrqHandler) {
+.macro stabilize(secondIrqHandler, commonEnd) {
   lda #<secondIrqHandler
   sta IRQ_LO
   lda #>secondIrqHandler
   sta IRQ_HI
+  jmp commonEnd
+}
+
+// to preserve memory...
+.macro stabilizeCommonEnd() {
   inc RASTER // TODO what if raster is higher than 255? quick check on overflow needed...
   inc IRR
   tsx
@@ -61,12 +66,9 @@
   nop
   nop
   nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop // TODO probably too many NOPs
+  #if NTSC 
+    nop
+  #endif
 }
 
 .macro cycleRaster(count) {
@@ -142,6 +144,9 @@
   cli
   rts // end of initialization
   
+commonEnd:
+  stabilizeCommonEnd()
+  
 copperIrq:                    // major interrupt handler for copper64; interrupt not stabilized at this point
   :debugBorderStart()
   pha
@@ -209,7 +214,7 @@ irqHandlers:
   irqh1:                        // (22) border color
     #if IRQH_BORDER_COL
       #if IRQH_BORDER_COL_STABLE
-        stabilize(irqh1Stabilized)
+        stabilize(irqh1Stabilized, commonEnd)
       irqh1Stabilized:
         txs
         cycleRaster(7)
@@ -224,7 +229,7 @@ irqHandlers:
   irqh2:                        // (22) background color 0
     #if IRQH_BG_COL_0
       #if IRQH_BG_COL_0_STABLE
-        stabilize(irqh2Stabilized)
+        stabilize(irqh2Stabilized, commonEnd)
       irqh2Stabilized:
         txs
         cycleRaster(8)
@@ -257,7 +262,7 @@ irqHandlers:
   irqh6:                        // (26) border and background color 0 same
     #if IRQH_BORDER_BG_0_COL
       #if IRQH_BORDER_BG_0_COL_STABLE
-        stabilize(irqh6Stabilized)
+        stabilize(irqh6Stabilized, commonEnd)
       irqh6Stabilized:
         txs
         cycleRaster(7)
@@ -272,11 +277,20 @@ irqHandlers:
     #endif
   irqh7:                        // (31) border and background color 0 different
     #if IRQH_BORDER_BG_0_DIFF
+      #if IRQH_BORDER_BG_0_DIFF_STABLE
+        stabilize(irqh7Stabilized, commonEnd)
+      irqh7Stabilized:
+        txs
+        cycleRaster(8) // TODO this is not properly cycled!
+      #endif
     lda (listStart),y           // 5
     sta BORDER_COL              // 4
     iny                         // 2
     lda (listStart),y           // 5
     sta BG_COL_0                // 4
+      #if IRQH_BORDER_BG_0_DIFF_STABLE 
+        setMasterIrqHandler(copperIrq)
+      #endif
     jmp irqhReminder2Args       // 3
     #endif
   irqh8:                        // (28) set vic-ii memory and bank
