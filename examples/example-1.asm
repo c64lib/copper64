@@ -37,11 +37,11 @@
 .print "play: $" + toHexString(music.play)
 .print "start song: " + music.startSong
 
-.pc = $0801 "Basic Upstart"
-:BasicUpstart(start) // Basic start routine
+*=$0801 "Basic Upstart"
+BasicUpstart(start) // Basic start routine
 
 // Main program
-.pc = $0810 "Program"
+*=$0810 "Program"
 
 start:
   // initialize sound  
@@ -51,7 +51,7 @@ start:
   jsr music.init
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
-  :configureMemory(c64lib.RAM_IO_RAM)
+  configureMemory(c64lib.RAM_IO_RAM)
   
   // set up address of display list
   lda #<copperList
