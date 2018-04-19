@@ -8,7 +8,33 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 * master: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=master)](https://travis-ci.org/c64lib/copper64)
 * develop: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=develop)](https://travis-ci.org/c64lib/copper64)
 
-## Data model
+# IRQ handlers
+## Set border color
+<table>
+	<tr>
+		<th>Handler label</th><td>`IRQH_BORDER_COL`</td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td>`1`</td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for border</td>
+	</tr>
+</table>
+## Set background color 0
+## Set background color 1
+## Set background color 2
+## Set background color 3
+## Set border and background 0 color uniformly
+## Set border and background 0 color separately
+## Set VIC memory register and VIC memory bank
+## Set VIC memory register
+## Set VIC mode, memory register and memory bank
+## Set VIC mode and memory register
+## Set VIC mode
+## Jump to subroutine
+
+# Data model
 Copper64 operates on IRQ table consisting of IRQ entries. Each IRQ entry is
 a following structure of 4 bytes:
 
