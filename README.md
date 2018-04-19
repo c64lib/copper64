@@ -97,10 +97,10 @@ Changes background color 0 and border color to the same color, the color can be 
 Changes background color 0 and border color to another values in single step, the colors are specified as arguments.
 <table>
 	<tr>
-		<th>Handler label</th><td><code>IRQH_BORDER_BG_0_COL</code></td>
+		<th>Handler label</th><td><code>IRQH_BORDER_BG_0_DIFF</code></td>
 	</tr>
 	<tr>
-		<th>Handler code</th><td><code>6</code></td>
+		<th>Handler code</th><td><code>7</code></td>
 	</tr>
 	<tr>
 		<th>Argument 1</th><td>Color code for border</td>
