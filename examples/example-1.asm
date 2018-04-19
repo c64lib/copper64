@@ -14,6 +14,7 @@
 #define IRQH_BG_COL_0
 #define IRQH_BG_COL_0_STABLE
 #define IRQH_BORDER_BG_0_COL
+#define IRQH_BORDER_BG_0_COL_STABLE
 #define IRQH_BORDER_BG_0_DIFF
 #define IRQH_MEM
 #define IRQH_MODE

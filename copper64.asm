@@ -256,9 +256,18 @@ irqHandlers:
     #endif
   irqh6:                        // (26) border and background color 0 same
     #if IRQH_BORDER_BG_0_COL
+      #if IRQH_BORDER_BG_0_COL_STABLE
+        stabilize(irqh6Stabilized)
+      irqh6Stabilized:
+        txs
+        cycleRaster(7)
+      #endif
     lda (listStart),y           // 5
     sta BORDER_COL              // 4
     sta BG_COL_0                // 4
+      #if IRQH_BORDER_BG_0_COL_STABLE 
+        setMasterIrqHandler(copperIrq)
+      #endif
     jmp irqhReminder            // 3
     #endif
   irqh7:                        // (31) border and background color 0 different
