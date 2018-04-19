@@ -94,6 +94,21 @@ Changes background color 0 and border color to the same color, the color can be 
 </table>
 
 ## Set border and background 0 color separately
+Changes background color 0 and border color to another values in single step, the colors are specified as arguments.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BORDER_BG_0_COL</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>6</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for border</td>
+	</tr>
+	<tr>
+		<th>Argument 2</th><td>Color code for background 0</td>
+	</tr>
+</table>
 
 ## Set VIC memory register and VIC memory bank
 
