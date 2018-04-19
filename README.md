@@ -38,12 +38,60 @@ Changes background color 0, the color can be specified as argument 1.
 </table>
 
 ## Set background color 1
+Changes background color 1, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_1</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>3</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 1</td>
+	</tr>
+</table>
 
 ## Set background color 2
+Changes background color 2, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_2</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>4</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 2</td>
+	</tr>
+</table>
 
 ## Set background color 3
+Changes background color 3, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_3</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>5</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 3</td>
+	</tr>
+</table>
 
 ## Set border and background 0 color uniformly
+Changes background color 0 and border color to the same color, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BORDER_BG_0_COL</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>6</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Common color code for background 0 and border</td>
+	</tr>
+</table>
 
 ## Set border and background 0 color separately
 
