@@ -12,10 +12,10 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 ## Set border color
 <table>
 	<tr>
-		<th>Handler label</th><td>`IRQH_BORDER_COL`</td>
+		<th>Handler label</th><td><code>IRQH_BORDER_COL</code></td>
 	</tr>
 	<tr>
-		<th>Handler code</th><td>`1`</td>
+		<th>Handler code</th><td><code>1</code></td>
 	</tr>
 	<tr>
 		<th>Argument 1</th><td>Color code for border</td>
