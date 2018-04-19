@@ -10,6 +10,7 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 
 # IRQ handlers
 ## Set border color
+Changes border color, the color can be specified as argument 1.
 <table>
 	<tr>
 		<th>Handler label</th><td><code>IRQH_BORDER_COL</code></td>
@@ -23,6 +24,18 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 </table>
 
 ## Set background color 0
+Changes background color 0, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_0</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>2</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 0</td>
+	</tr>
+</table>
 
 ## Set background color 1
 
