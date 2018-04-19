@@ -21,17 +21,29 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 		<th>Argument 1</th><td>Color code for border</td>
 	</tr>
 </table>
+
 ## Set background color 0
+
 ## Set background color 1
+
 ## Set background color 2
+
 ## Set background color 3
+
 ## Set border and background 0 color uniformly
+
 ## Set border and background 0 color separately
+
 ## Set VIC memory register and VIC memory bank
+
 ## Set VIC memory register
+
 ## Set VIC mode, memory register and memory bank
+
 ## Set VIC mode and memory register
+
 ## Set VIC mode
+
 ## Jump to subroutine
 
 # Data model
