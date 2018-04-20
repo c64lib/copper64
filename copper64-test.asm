@@ -9,4 +9,4 @@
 #import "copper64.asm"
 
 
-:initCopper($f0, $f2)
+initCopper($f0, $f2, $f3)
