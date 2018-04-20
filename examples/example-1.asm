@@ -13,10 +13,7 @@
 #define IRQH_BG_COL_0
 #define IRQH_BORDER_BG_0_COL
 #define IRQH_BORDER_BG_0_DIFF
-#define IRQH_MEM
-#define IRQH_MODE
 #define IRQH_JSR
-//#define VISUAL_DEBUG
 
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
@@ -95,10 +92,6 @@ copperList: {
   copperEntry(144, c64lib.IRQH_BG_COL_0, GREY, 0)
   copperEntry(157, c64lib.IRQH_BG_COL_0, BLUE, 0)
   copperEntry(163, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
-  copperEntry(172, c64lib.IRQH_MODE, $00, c64lib.CONTROL_2_MCM)
-  copperEntry(195, c64lib.IRQH_MEM, getTextMemory(0, 2), 0)
-  copperEntry(211, c64lib.IRQH_MEM, getTextMemory(1, 2), 0)
-  copperEntry(215, c64lib.IRQH_MODE, $00, $00)
   copperEntry(220, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
   copperEntry(230, c64lib.IRQH_BORDER_BG_0_DIFF, LIGHT_BLUE, BLUE)
   copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
