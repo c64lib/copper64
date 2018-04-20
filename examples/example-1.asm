@@ -10,13 +10,9 @@
  */
  
 #define IRQH_BORDER_COL
-#define IRQH_BORDER_COL_STABLE
 #define IRQH_BG_COL_0
-#define IRQH_BG_COL_0_STABLE
 #define IRQH_BORDER_BG_0_COL
-#define IRQH_BORDER_BG_0_COL_STABLE
 #define IRQH_BORDER_BG_0_DIFF
-#define IRQH_BORDER_BG_0_DIFF_STABLE
 #define IRQH_MEM
 #define IRQH_MODE
 #define IRQH_JSR
@@ -30,7 +26,8 @@
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
 .label LIST_PTR = $04
-.label COUNTER_PTR = $05
+.label ACCU = $05
+.label COUNTER_PTR = $06
 
 .var music = LoadSid("Noisy_Pillars_tune_1.sid")
 .print "SID Music details"
@@ -87,7 +84,7 @@ custom1:
   rts
   
 copper: {
-  initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
+  initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, ACCU)
 }
 
 .align $100
@@ -102,7 +99,7 @@ copperList: {
   copperEntry(195, c64lib.IRQH_MEM, getTextMemory(0, 2), 0)
   copperEntry(211, c64lib.IRQH_MEM, getTextMemory(1, 2), 0)
   copperEntry(215, c64lib.IRQH_MODE, $00, $00)
-  copperEntry(220, c64lib.IRQH_BORDER_BG_0_COL, GREEN, $00)
+  copperEntry(220, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
   copperEntry(230, c64lib.IRQH_BORDER_BG_0_DIFF, LIGHT_BLUE, BLUE)
   copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
   copperLoop()

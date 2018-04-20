@@ -115,12 +115,14 @@
 }
 
 /*
- * Requires 3 bytes on zero page: 2 subsequent for listStart and 1 byte for list pointer (Y)
+ * Requires 4 bytes on zero page: 2 subsequent for listStart, 1 byte for list pointer (Y)
+ * and one byte for additional accumulator
  *
  * listStart - begin address of display list stored on zero page
  * listPtr - address for Y reg storage
+ * accu - address of additional accumulator
  */
-.macro @initCopper(listStart, listPtr) {
+.macro @initCopper(listStart, listPtr, accu) {
   // here we do initialize and install first interrupt handler
   lda #$00
   sta listPtr
@@ -214,40 +216,31 @@ nmi:
   .align $100
 irqHandlers:
   .print "IRQ Handlers start at: " + toHexString(irqHandlers)
-  irqh1:                        // (22) border color
+  irqh1:                        // (22) border color, always stable
     #if IRQH_BORDER_COL
-      #if IRQH_BORDER_COL_STABLE
-        stabilize(irqh1Stabilized, commonEnd)
-      irqh1Stabilized:  // 7 + 0(1)
-        txs // 2
-        lda (listStart),y       // 5
-        sta listPtr             // 3
-        //nop // 2 ?
-        cycleRaster(6)  
-        lda listPtr             // 3
-      #else
-        lda (listStart),y           // 5
-      #endif
-    sta BORDER_COL              // 4
-      #if IRQH_BORDER_COL_STABLE 
-        setMasterIrqHandler(copperIrq)
-      #endif
-    jmp irqhReminder            // 3
+      stabilize(irqh1Stabilized, commonEnd)
+    irqh1Stabilized:          // 7 + 0(1)
+      txs                     // 2
+      lda (listStart),y       // 5
+      sta listPtr             // 3
+      cycleRaster(6)  
+      lda listPtr             // 3 left horiz blanking
+      sta BORDER_COL          // 4 left horiz blanking
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder        // 3
     #endif
-  irqh2:                        // (22) background color 0
+  irqh2:                        // (22) background color 0, always stable
     #if IRQH_BG_COL_0
-      #if IRQH_BG_COL_0_STABLE
-        stabilize(irqh2Stabilized, commonEnd)
-      irqh2Stabilized:
-        txs
-        cycleRaster(8)
-      #endif
-    lda (listStart),y       // 5
-    sta BG_COL_0                // 4
-      #if IRQH_BG_COL_0_STABLE 
-        setMasterIrqHandler(copperIrq)
-      #endif
-    jmp irqhReminder            // 3
+      stabilize(irqh2Stabilized, commonEnd)
+    irqh2Stabilized:
+      txs
+      lda (listStart),y
+      sta listPtr
+      cycleRaster(6)
+      lda listPtr       // 5
+      sta BG_COL_0                // 4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder            // 3
     #endif
   irqh3:                        // (22) background color 1
     #if IRQH_BG_COL_1
@@ -269,37 +262,36 @@ irqHandlers:
     #endif
   irqh6:                        // (26) border and background color 0 same
     #if IRQH_BORDER_BG_0_COL
-      #if IRQH_BORDER_BG_0_COL_STABLE
-        stabilize(irqh6Stabilized, commonEnd)
-      irqh6Stabilized:
-        txs
-        cycleRaster(8)
-      #endif
-    lda (listStart),y           // 5
-    sta BORDER_COL              // 4
-    sta BG_COL_0                // 4
-      #if IRQH_BORDER_BG_0_COL_STABLE 
-        setMasterIrqHandler(copperIrq)
-      #endif
-    jmp irqhReminder            // 3
+      stabilize(irqh6Stabilized, commonEnd)
+    irqh6Stabilized:
+      txs
+      lda (listStart),y           // 5
+      sta listPtr
+      cycleRaster(6)
+      lda listPtr
+      sta BORDER_COL              // 4
+      sta BG_COL_0                // 4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder            // 3
     #endif
   irqh7:                        // (31) border and background color 0 different
     #if IRQH_BORDER_BG_0_DIFF
-      #if IRQH_BORDER_BG_0_DIFF_STABLE
-        stabilize(irqh7Stabilized, commonEnd)
-      irqh7Stabilized:
-        txs
-        cycleRaster(8)
-      #endif
-    lda (listStart),y           // 5
-    sta BORDER_COL              // 4
-    iny                         // 2
-    lda (listStart),y           // 5
-    sta BG_COL_0                // 4
-      #if IRQH_BORDER_BG_0_DIFF_STABLE 
-        setMasterIrqHandler(copperIrq)
-      #endif
-    jmp irqhReminder2Args       // 3
+      stabilize(irqh7Stabilized, commonEnd)
+    irqh7Stabilized:
+      txs
+      lda (listStart),y           // 5
+      sta listPtr                 // 3
+      iny                         // 2
+      lda (listStart),y           // 5
+      sta accu                    // 3
+      nop
+      cycleRaster(4)
+      lda listPtr                 // 3
+      sta BORDER_COL              // 4
+      lda accu                    // 3
+      sta BG_COL_0                // 4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args       // 3
     #endif
   irqh8:                        // (28) set vic-ii memory and bank
     #if IRQH_MEM_BANK
