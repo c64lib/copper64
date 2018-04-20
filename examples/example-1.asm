@@ -24,11 +24,13 @@
 
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
+#import "text/text.asm"
 #import "../copper64.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
 .label LIST_PTR = $04
+.label COUNTER_PTR = $05
 
 .var music = LoadSid("Noisy_Pillars_tune_1.sid")
 .print "SID Music details"
@@ -48,6 +50,14 @@ BasicUpstart(start) // Basic start routine
 *=$0810 "Program"
 
 start:
+  lda #$00
+  sta COUNTER_PTR
+  .for (var i = 0; i < 25; i++) {
+    outByteHex(COUNTER_PTR, 1024, 0, i, BLACK, hexChars)
+    outByteHex(COUNTER_PTR, 1024, 38, i, BLACK, hexChars)
+    inc COUNTER_PTR
+  }
+
   // initialize sound  
   ldx #0
   ldy #0
@@ -86,8 +96,8 @@ copperList: {
   copperEntry(120, c64lib.IRQH_BG_COL_0, RED, 0)
   copperEntry(144, c64lib.IRQH_BG_COL_0, GREY, 0)
   copperEntry(157, c64lib.IRQH_BG_COL_0, BLUE, 0)
-  copperEntry(161, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
-  copperEntry(169, c64lib.IRQH_MODE, $00, c64lib.CONTROL_2_MCM)
+  copperEntry(162, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
+  copperEntry(172, c64lib.IRQH_MODE, $00, c64lib.CONTROL_2_MCM)
   copperEntry(195, c64lib.IRQH_MEM, getTextMemory(0, 2), 0)
   copperEntry(211, c64lib.IRQH_MEM, getTextMemory(1, 2), 0)
   copperEntry(215, c64lib.IRQH_MODE, $00, $00)
@@ -96,6 +106,9 @@ copperList: {
   copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
   copperLoop()
 }
+
+hexChars:
+	.text "0123456789abcdef"
 
 *=music.location "Music"
 .fill music.size, music.getData(i)
