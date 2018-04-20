@@ -48,7 +48,7 @@
  */
 .macro stabilize(secondIrqHandler, commonEnd) {
   lda #<secondIrqHandler
-  sta IRQ_LO
+  sta IRQ_LO  
   lda #>secondIrqHandler
   sta IRQ_HI
   jmp commonEnd
@@ -56,13 +56,13 @@
 
 // to preserve memory...
 .macro stabilizeCommonEnd() {
-  inc RASTER // TODO what if raster is higher than 255? quick check on overflow needed...
-  inc IRR
-  tsx
-  cli
-  nop
-  nop
-  nop
+  inc RASTER // 5: TODO what if raster is higher than 255? quick check on overflow needed...
+  inc IRR    // 5
+  tsx // 2
+  cli // 2
+  nop // 2
+  nop // 2
+  nop // 2
   nop
   nop
   nop
@@ -72,13 +72,16 @@
 }
 
 .macro cycleRaster(count) {
-  ldx #count
-  dex
-  bne *-1
-  bit $00
-  lda RASTER
-  cmp RASTER
-  beq *+2
+  ldx #count  // 4
+  dex         // _ 2
+  bne *-1     // _ 2(3)
+              // S 3 + count * 5
+  bit $00     // 3
+  lda RASTER  // 4
+  cmp RASTER  // 4
+              // S 11 
+  beq *+2     // 2(3)
+              // total: count * 5 + 14 + 2(3)
 }
 
 .macro setMasterIrqHandler(copperIrq) {
@@ -215,11 +218,16 @@ irqHandlers:
     #if IRQH_BORDER_COL
       #if IRQH_BORDER_COL_STABLE
         stabilize(irqh1Stabilized, commonEnd)
-      irqh1Stabilized:
-        txs
-        cycleRaster(7)
+      irqh1Stabilized:  // 7 + 0(1)
+        txs // 2
+        lda (listStart),y       // 5
+        sta listPtr             // 3
+        //nop // 2 ?
+        cycleRaster(6)  
+        lda listPtr             // 3
+      #else
+        lda (listStart),y           // 5
       #endif
-    lda (listStart),y           // 5
     sta BORDER_COL              // 4
       #if IRQH_BORDER_COL_STABLE 
         setMasterIrqHandler(copperIrq)
@@ -234,7 +242,7 @@ irqHandlers:
         txs
         cycleRaster(8)
       #endif
-    lda (listStart),y           // 5
+    lda (listStart),y       // 5
     sta BG_COL_0                // 4
       #if IRQH_BG_COL_0_STABLE 
         setMasterIrqHandler(copperIrq)
@@ -265,7 +273,7 @@ irqHandlers:
         stabilize(irqh6Stabilized, commonEnd)
       irqh6Stabilized:
         txs
-        cycleRaster(7)
+        cycleRaster(8)
       #endif
     lda (listStart),y           // 5
     sta BORDER_COL              // 4
@@ -281,7 +289,7 @@ irqHandlers:
         stabilize(irqh7Stabilized, commonEnd)
       irqh7Stabilized:
         txs
-        cycleRaster(8) // TODO this is not properly cycled!
+        cycleRaster(8)
       #endif
     lda (listStart),y           // 5
     sta BORDER_COL              // 4

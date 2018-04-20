@@ -47,7 +47,7 @@
 BasicUpstart(start) // Basic start routine
 
 // Main program
-*=$0810 "Program"
+*=$3000 "Program"
 
 start:
   lda #$00
@@ -78,6 +78,7 @@ start:
 block:
   nop
   lda $ff00
+  lda $ff00,y
   jmp block
 custom1:  
   inc c64lib.BORDER_COL
@@ -91,18 +92,18 @@ copper: {
 
 .align $100
 copperList: {
-  copperEntry(81,  c64lib.IRQH_BORDER_COL, WHITE, 0)
+  copperEntry(48,  c64lib.IRQH_BORDER_COL, WHITE, 0)
   copperEntry(100, c64lib.IRQH_BG_COL_0, YELLOW, 0)
   copperEntry(120, c64lib.IRQH_BG_COL_0, RED, 0)
   copperEntry(144, c64lib.IRQH_BG_COL_0, GREY, 0)
   copperEntry(157, c64lib.IRQH_BG_COL_0, BLUE, 0)
-  copperEntry(162, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
+  copperEntry(163, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
   copperEntry(172, c64lib.IRQH_MODE, $00, c64lib.CONTROL_2_MCM)
   copperEntry(195, c64lib.IRQH_MEM, getTextMemory(0, 2), 0)
   copperEntry(211, c64lib.IRQH_MEM, getTextMemory(1, 2), 0)
   copperEntry(215, c64lib.IRQH_MODE, $00, $00)
   copperEntry(220, c64lib.IRQH_BORDER_BG_0_COL, GREEN, $00)
-  copperEntry(241, c64lib.IRQH_BORDER_BG_0_DIFF, LIGHT_BLUE, BLUE)
+  copperEntry(230, c64lib.IRQH_BORDER_BG_0_DIFF, LIGHT_BLUE, BLUE)
   copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
   copperLoop()
 }
