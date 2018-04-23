@@ -85,14 +85,17 @@ copper: {
 
 .align $100
 copperList: {
-  copperEntry(48,  c64lib.IRQH_BORDER_COL, WHITE, 0)
-  copperEntry(101, c64lib.IRQH_BG_COL_0, YELLOW, 0)
-  copperEntry(121, c64lib.IRQH_BG_COL_0, RED, 0)
-  copperEntry(144, c64lib.IRQH_BG_COL_0, GREY, 0)
-  copperEntry(157, c64lib.IRQH_BG_COL_0, BLUE, 0)
-  copperEntry(163, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
-  copperEntry(220, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
-  copperEntry(230, c64lib.IRQH_BORDER_BG_0_DIFF, LIGHT_BLUE, BLUE)
+  copperEntry(46,  c64lib.IRQH_BORDER_COL, WHITE, 0)
+  copperEntry(81, c64lib.IRQH_BG_COL_0, YELLOW, 0)
+  copperEntry(101, c64lib.IRQH_BG_COL_0, LIGHT_GREEN, 0)
+  copperEntry(124, c64lib.IRQH_BG_COL_0, GREY, 0)
+  copperEntry(131, c64lib.IRQH_BG_COL_0, BLUE, 0)
+  copperEntry(150, c64lib.IRQH_BORDER_COL, RED, 0)
+  copperEntry(216, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
+  copperEntry(221, c64lib.IRQH_BORDER_BG_0_COL, GREY, $00)
+  copperEntry(227, c64lib.IRQH_BORDER_BG_0_COL, DARK_GREY, $00)
+  copperEntry(232, c64lib.IRQH_BORDER_BG_0_DIFF, RED, BLUE)
+  copperEntry(252, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
   copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
   copperLoop()
 }
