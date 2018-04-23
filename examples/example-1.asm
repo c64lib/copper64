@@ -23,8 +23,7 @@
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
 .label LIST_PTR = $04
-.label ACCU = $05
-.label COUNTER_PTR = $06
+.label COUNTER_PTR = $05
 
 .var music = LoadSid("Noisy_Pillars_tune_1.sid")
 .print "SID Music details"
@@ -81,14 +80,14 @@ custom1:
   rts
   
 copper: {
-  initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, ACCU)
+  initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
 }
 
 .align $100
 copperList: {
   copperEntry(48,  c64lib.IRQH_BORDER_COL, WHITE, 0)
-  copperEntry(100, c64lib.IRQH_BG_COL_0, YELLOW, 0)
-  copperEntry(120, c64lib.IRQH_BG_COL_0, RED, 0)
+  copperEntry(101, c64lib.IRQH_BG_COL_0, YELLOW, 0)
+  copperEntry(121, c64lib.IRQH_BG_COL_0, RED, 0)
   copperEntry(144, c64lib.IRQH_BG_COL_0, GREY, 0)
   copperEntry(157, c64lib.IRQH_BG_COL_0, BLUE, 0)
   copperEntry(163, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)

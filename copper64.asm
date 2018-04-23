@@ -46,11 +46,13 @@
 /*
  * Stabilizes interrupt.
  */
-.macro stabilize(secondIrqHandler, commonEnd) {
+.macro stabilize(secondIrqHandler, commonEnd, preserveA) {
+  .if(preserveA) tax 
   lda #<secondIrqHandler
   sta IRQ_LO  
   lda #>secondIrqHandler
   sta IRQ_HI
+  .if(preserveA) txa
   jmp commonEnd
 }
 
@@ -66,21 +68,34 @@
   nop
   nop
   nop
-  #if NTSC 
-    nop
-  #endif
+  jmp *-1
 }
 
-.macro cycleRaster(count) {
-  ldx #count  // 4
-  dex         // _ 2
-  bne *-1     // _ 2(3)
-              // S 3 + count * 5
-  bit $00     // 3
-  lda RASTER  // 4
-  cmp RASTER  // 4
-              // S 11 
-  beq *+2     // 2(3)
+/*
+ * Length: 5 bytes
+ * Timing:   count * 7 - 1 (cycles)
+ * MOD: X
+ */
+.macro cycleDelay(count) { 
+  ldx #count  // 2, 2
+  dex         // 2, 1
+  bne *-1     // 3(2), 2 - max 3 if on the same page
+}
+
+/*
+ * Length: 15 bytes
+ * Timing: count * 7 + 10 + 2(3) 
+ */
+.macro cycleRaster(count) {// length 15 bytes
+  ldx #count  // 2, 2
+  dex         // 2, 1
+  bne *-1     // 3(2), 2
+
+  bit $00     // 3, 2
+  lda RASTER  // 4, 3
+  cmp RASTER  // 4, 3
+
+  beq *+2     // 3(2), 2
               // total: count * 5 + 14 + 2(3)
 }
 
@@ -116,13 +131,11 @@
 
 /*
  * Requires 4 bytes on zero page: 2 subsequent for listStart, 1 byte for list pointer (Y)
- * and one byte for additional accumulator
  *
  * listStart - begin address of display list stored on zero page
  * listPtr - address for Y reg storage
- * accu - address of additional accumulator
  */
-.macro @initCopper(listStart, listPtr, accu) {
+.macro @initCopper(listStart, listPtr) {
   // here we do initialize and install first interrupt handler
   lda #$00
   sta listPtr
@@ -216,31 +229,28 @@ nmi:
   .align $100
 irqHandlers:
   .print "IRQ Handlers start at: " + toHexString(irqHandlers)
-  irqh1:                        // (22) border color, always stable
+  irqh1:                              // (?) border color; stable + jitter; +1 raster
     #if IRQH_BORDER_COL
-      stabilize(irqh1Stabilized, commonEnd)
-    irqh1Stabilized:          // 7 + 0(1)
-      txs                     // 2
-      lda (listStart),y       // 5
-      sta listPtr             // 3
-      cycleRaster(6)  
-      lda listPtr             // 3 left horiz blanking
-      sta BORDER_COL          // 4 left horiz blanking
+      stabilize(irqh1Stabilized, commonEnd, false)
+    irqh1Stabilized:                  // 7 + 0(1) 
+      txs                             // 2
+      cycleDelay(8)                   // cycle delay
+      nop                             // potentially 1 extra cycle to save
+      lda (listStart),y               // 5
+      sta BORDER_COL                  // 4 right horiz blanking
       setMasterIrqHandler(copperIrq)
-      jmp irqhReminder        // 3
+      jmp irqhReminder                // 3
     #endif
-  irqh2:                        // (22) background color 0, always stable
+  irqh2:                              // (?) background color 0, stable + jitter; +1 raster
     #if IRQH_BG_COL_0
-      stabilize(irqh2Stabilized, commonEnd)
-    irqh2Stabilized:
-      txs
-      lda (listStart),y
-      sta listPtr
-      cycleRaster(6)
-      lda listPtr       // 5
-      sta BG_COL_0                // 4
+      stabilize(irqh2Stabilized, commonEnd, false)
+    irqh2Stabilized:                  // 7
+      txs                             // 2
+      cycleDelay(8)                   // a little bit too much, but we want to save bytes as well
+      lda (listStart),y               // 5
+      sta BG_COL_0                    // 4
       setMasterIrqHandler(copperIrq)
-      jmp irqhReminder            // 3
+      jmp irqhReminder                // 3
     #endif
   irqh3:                        // (22) background color 1
     #if IRQH_BG_COL_1
@@ -260,36 +270,33 @@ irqHandlers:
     sta BG_COL_3                // 4
     jmp irqhReminder            // 3
     #endif
-  irqh6:                        // (26) border and background color 0 same
+  irqh6:                        // (?) border and background color 0 same; stable + jitter; +1 raster
     #if IRQH_BORDER_BG_0_COL
-      stabilize(irqh6Stabilized, commonEnd)
+      stabilize(irqh6Stabilized, commonEnd, false)
     irqh6Stabilized:
       txs
+      cycleDelay(7)
+      nop
       lda (listStart),y           // 5
-      sta listPtr
-      cycleRaster(6)
-      lda listPtr
-      sta BORDER_COL              // 4
       sta BG_COL_0                // 4
+      sta BORDER_COL              // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder            // 3
     #endif
-  irqh7:                        // (31) border and background color 0 different
+  irqh7:                        // (31) border and background color 0 different; stable + jitter; +1 raster
     #if IRQH_BORDER_BG_0_DIFF
-      stabilize(irqh7Stabilized, commonEnd)
+      stabilize(irqh7Stabilized, commonEnd, false)
     irqh7Stabilized:
       txs
+      cycleDelay(5)
       lda (listStart),y           // 5
-      sta listPtr                 // 3
+      sta listPtr
       iny                         // 2
       lda (listStart),y           // 5
-      sta accu                    // 3
       nop
-      cycleRaster(4)
-      lda listPtr                 // 3
-      sta BORDER_COL              // 4
-      lda accu                    // 3
       sta BG_COL_0                // 4
+      lda listPtr
+      sta BORDER_COL              // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args       // 3
     #endif
