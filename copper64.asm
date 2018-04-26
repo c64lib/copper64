@@ -252,25 +252,40 @@ irqHandlers:
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder                // 3
     #endif
-  irqh3:                        // (22) background color 1
+  irqh3:                              // (22) background color 1
     #if IRQH_BG_COL_1
-    lda (listStart),y           // 5
-    sta BG_COL_1                // 4
-    jmp irqhReminder            // 3
+      stabilize(irqh3Stabilized, commonEnd, false)
+    irqh3Stabilized:                  // 7
+      txs                             // 2
+      cycleDelay(8)                   // a little bit too much, but we want to save bytes as well
+      lda (listStart),y               // 5
+      sta BG_COL_1                    // 4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder                // 3
     #endif
-  irqh4:                        // (22) background color 2
+  irqh4:                              // (22) background color 2
     #if IRQH_BG_COL_2
-    lda (listStart),y           // 5
-    sta BG_COL_2                // 4
-    jmp irqhReminder            // 3
+      stabilize(irqh4Stabilized, commonEnd, false)
+    irqh4Stabilized:                  // 7
+      txs                             // 2
+      cycleDelay(8)                   // a little bit too much, but we want to save bytes as well
+      lda (listStart),y               // 5
+      sta BG_COL_2                    // 4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder                // 3
     #endif
-  irqh5:                        // (22) background color 3
+  irqh5:                              // (22) background color 3
     #if IRQH_BG_COL_3
-    lda (listStart),y           // 5
-    sta BG_COL_3                // 4
-    jmp irqhReminder            // 3
+      stabilize(irqh5Stabilized, commonEnd, false)
+    irqh5Stabilized:                  // 7
+      txs                             // 2
+      cycleDelay(8)                   // a little bit too much, but we want to save bytes as well
+      lda (listStart),y               // 5
+      sta BG_COL_3                    // 4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder                // 3
     #endif
-  irqh6:                        // (?) border and background color 0 same; stable + jitter; +1 raster
+  irqh6:                              // (?) border and background color 0 same; stable + jitter; +1 raster
     #if IRQH_BORDER_BG_0_COL
       stabilize(irqh6Stabilized, commonEnd, false)
     irqh6Stabilized:
@@ -300,7 +315,7 @@ irqHandlers:
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args       // 3
     #endif
-  irqh8:                        // (28) set vic-ii memory and bank
+  irqh8:                        // (28) set vic-ii memory and bank TODO stabilize
     #if IRQH_MEM_BANK
     lda (listStart),y           // 5
     sta MEMORY_CONTROL          // 4
@@ -310,19 +325,19 @@ irqHandlers:
     sta CIA2_DATA_PORT_A        // 4
     jmp irqhReminder2Args       // 3
     #endif
-  irqh9:                        // (16) set vic-ii memory
+  irqh9:                        // (16) set vic-ii memory TODO stabilize
     #if IRQH_MEM
     lda (listStart),y           // 5
     sta MEMORY_CONTROL          // 4
     jmp irqhReminder            // 3
     #endif
   irqh10:                       // mode mem bank
-    #if IRQH_MODE_MEM_BANK
+    #if IRQH_MODE_MEM_BANK      // TODO t.b.d.
     #endif
   irqh11:                       // mode mem
-    #if IRQH_MODE_MEM
+    #if IRQH_MODE_MEM           // TODO t.b.d.
     #endif
-  irqh12:                       // mode (control 1 | control 2)
+  irqh12:                       // mode (control 1 | control 2) TODO stabilize
     #if IRQH_MODE
     lda CONTROL_1               // 4               
     and #neg(CONTROL_1_ECM | CONTROL_1_BMM) // 3
