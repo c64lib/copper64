@@ -8,7 +8,106 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 * master: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=master)](https://travis-ci.org/c64lib/copper64)
 * develop: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=develop)](https://travis-ci.org/c64lib/copper64)
 
-## Data model
+# IRQ handlers
+## Set border color
+Changes border color, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BORDER_COL</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>1</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for border</td>
+	</tr>
+</table>
+
+## Set background color 0
+Changes background color 0, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_0</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>2</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 0</td>
+	</tr>
+</table>
+
+## Set background color 1
+Changes background color 1, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_1</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>3</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 1</td>
+	</tr>
+</table>
+
+## Set background color 2
+Changes background color 2, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_2</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>4</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 2</td>
+	</tr>
+</table>
+
+## Set background color 3
+Changes background color 3, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BG_COL_3</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>5</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Color code for background 3</td>
+	</tr>
+</table>
+
+## Set border and background 0 color uniformly
+Changes background color 0 and border color to the same color, the color can be specified as argument 1.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_BORDER_BG_0_COL</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>6</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Common color code for background 0 and border</td>
+	</tr>
+</table>
+
+## Set border and background 0 color separately
+
+## Set VIC memory register and VIC memory bank
+
+## Set VIC memory register
+
+## Set VIC mode, memory register and memory bank
+
+## Set VIC mode and memory register
+
+## Set VIC mode
+
+## Jump to subroutine
+
+# Data model
 Copper64 operates on IRQ table consisting of IRQ entries. Each IRQ entry is
 a following structure of 4 bytes:
 
