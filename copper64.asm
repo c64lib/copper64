@@ -34,10 +34,12 @@
 .label IRQH_BORDER_BG_0_DIFF    = 7
 .label IRQH_MEM_BANK            = 8
 .label IRQH_MEM                 = 9
-.label IRQH_MODE_MEM_BANK       = 10
-.label IRQH_MODE_MEM            = 11
-.label IRQH_MODE                = 12
-.label IRQH_JSR                 = 13
+.label IRQH_MODE_HIRES_BITMAP   = 10
+.label IRQH_MODE_MULTIC_BITMAP  = 11
+.label IRQH_MODE_HIRES_TEXT     = 12
+.label IRQH_MODE_MULTIC_TEXT    = 13
+.label IRQH_MODE_EXTENDED_TEXT  = 14
+.label IRQH_JSR                 = 15
 
 .label IRQH_CTRL_RASTER8        = %10000000
 .label IRQH_SKIP                = $00
@@ -331,34 +333,70 @@ irqHandlers:
     sta MEMORY_CONTROL          // 4
     jmp irqhReminder            // 3
     #endif
-  irqh10:                       // mode mem bank
-    #if IRQH_MODE_MEM_BANK      // TODO t.b.d.
+  irqh10:                       // HIRES Bitmap mode (memory control | bank)
+    #if IRQH_MODE_HIRES_BITMAP
+      lda (listStart),y
+      sta MEMORY_CONTROL
+      iny
+      lda (listStart),y
+      ora CIA2_DATA_PORT_A
+      sta CIA2_DATA_PORT_A
+      setVideoMode(STANDARD_BITMAP_MODE)
+      jmp irqhReminder2Args
     #endif
-  irqh11:                       // mode mem
-    #if IRQH_MODE_MEM           // TODO t.b.d.
+  irqh11:                       // MULTIC Bitmap mode (memory control | bank)
+    #if IRQH_MODE_MULTIC_BITMAP
+      lda (listStart),y
+      sta MEMORY_CONTROL
+      iny
+      lda (listStart),y
+      ora CIA2_DATA_PORT_A
+      sta CIA2_DATA_PORT_A
+      setVideoMode(MULTICOLOR_BITMAP_MODE)
+      jmp irqhReminder2Args
     #endif
-  irqh12:                       // mode (control 1 | control 2) TODO stabilize
-    #if IRQH_MODE
-    lda CONTROL_1               // 4               
-    and #neg(CONTROL_1_ECM | CONTROL_1_BMM) // 3
-    ora (listStart),y           // 4
-    sta CONTROL_1               // 4
-    iny                         // 2
-    lda CONTROL_2               // 4
-    and #neg(CONTROL_2_MCM)     // 3
-    ora (listStart),y           // 4
-    sta CONTROL_2
-    jmp irqhReminder2Args       // 3
+  irqh12:                       // HIRES Text (memory control | bank) TODO stabilize
+    #if IRQH_MODE_HIRES_TEXT
+      lda (listStart),y
+      sta MEMORY_CONTROL
+      iny
+      lda (listStart),y
+      ora CIA2_DATA_PORT_A
+      sta CIA2_DATA_PORT_A
+      setVideoMode(STANDARD_TEXT_MODE)
+      jmp irqhReminder2Args
     #endif
-  irqh13:                       // jsr (jsr address lo | lsr address hi)
+  irqh13:                       // MULTIC Text (memory control | bank) TODO stabilize
+    #if IRQH_MODE_MULTIC_TEXT
+      lda (listStart),y
+      sta MEMORY_CONTROL
+      iny
+      lda (listStart),y
+      ora CIA2_DATA_PORT_A
+      sta CIA2_DATA_PORT_A
+      setVideoMode(MULTICOLOR_TEXT_MODE)
+      jmp irqhReminder2Args
+    #endif
+  irqh14:                       // EXTENDED Background Text (memory control | bank) TODO stabilize
+    #if IRQH_MODE_EXTENDED_TEXT
+      lda (listStart),y
+      sta MEMORY_CONTROL
+      iny
+      lda (listStart),y
+      ora CIA2_DATA_PORT_A
+      sta CIA2_DATA_PORT_A
+      setVideoMode(EXTENDED_TEXT_MODE)
+      jmp irqhReminder2Args
+    #endif
+  irqh15:                       // jsr (jsr address lo | lsr address hi)
     #if IRQH_JSR
     lda (listStart),y           // 4
-    sta irqh13jsr+1             // 4
+    sta irqh15jsr+1             // 4
     iny                         // 2
     lda (listStart),y           // 4
-    sta irqh13jsr+2             // 4
+    sta irqh15jsr+2             // 4
     sty listPtr
-  irqh13jsr:
+  irqh15jsr:
     jsr $0000
     ldy listPtr
     jmp irqhReminder2Args
@@ -385,7 +423,7 @@ irqHandlers:
 jumpTable:
   .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
-  .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13
+  .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13, <irqh14, <irqh15
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true

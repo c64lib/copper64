@@ -1,5 +1,5 @@
 /*
- * c64lib/copper64/examples/e01-color-raster-bars.asm
+ * c64lib/copper64/examples/e02-screen-modes.asm
  *
  * Demo program for copper64 routine.
  *
@@ -9,10 +9,10 @@
  * GIT repo:  https://github.com/c64lib/copper64
  */
  
-#define IRQH_BORDER_COL
-#define IRQH_BG_COL_0
-#define IRQH_BORDER_BG_0_COL
-#define IRQH_BORDER_BG_0_DIFF
+#define IRQH_MODE_HIRES_BITMAP
+#define IRQH_MODE_HIRES_TEXT
+#define IRQH_MODE_MULTIC_BITMAP
+#define IRQH_MODE_MULTIC_TEXT
 #define IRQH_JSR
 
 #import "chipset/mos6510.asm"
@@ -85,18 +85,8 @@ copper: {
 
 .align $100
 copperList: {
-
-  copperEntry(46, c64lib.IRQH_BORDER_COL, WHITE, 0)
-  copperEntry(81, c64lib.IRQH_BG_COL_0, YELLOW, 0)
-  copperEntry(101, c64lib.IRQH_BG_COL_0, LIGHT_GREEN, 0)
-  copperEntry(124, c64lib.IRQH_BG_COL_0, GREY, 0)
-  copperEntry(131, c64lib.IRQH_BG_COL_0, BLUE, 0)
-  copperEntry(150, c64lib.IRQH_BORDER_COL, RED, 0)
-  copperEntry(216, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
-  copperEntry(221, c64lib.IRQH_BORDER_BG_0_COL, GREY, $00)
-  copperEntry(227, c64lib.IRQH_BORDER_BG_0_COL, DARK_GREY, $00)
-  copperEntry(232, c64lib.IRQH_BORDER_BG_0_DIFF, RED, BLUE)
-  copperEntry(252, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
+  copperEntry(85, c64lib.IRQH_MODE_HIRES_BITMAP, getBitmapMemory(0, 0), 0)
+  copperEntry(133, c64lib.IRQH_MODE_HIRES_TEXT, getTextMemory(1, 2), 0)
   copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
   copperLoop()
 }
