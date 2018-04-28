@@ -33,13 +33,13 @@
 .label IRQH_BORDER_BG_0_COL     = 6
 .label IRQH_BORDER_BG_0_DIFF    = 7
 .label IRQH_MEM_BANK            = 8
-.label IRQH_MEM                 = 9
+.label IRQH_MEM                 = 15
 .label IRQH_MODE_HIRES_BITMAP   = 10
 .label IRQH_MODE_MULTIC_BITMAP  = 11
 .label IRQH_MODE_HIRES_TEXT     = 12
 .label IRQH_MODE_MULTIC_TEXT    = 13
 .label IRQH_MODE_EXTENDED_TEXT  = 14
-.label IRQH_JSR                 = 15
+.label IRQH_JSR                 = 9
 
 .label IRQH_CTRL_RASTER8        = %10000000
 .label IRQH_SKIP                = $00
@@ -195,8 +195,8 @@ fetchNext:                      // fetch new copper list item, y should point at
   cmp #IRQH_SKIP                // 2
   beq skip                      // 2: if #$FF then skip copper list position
   rol                           // 2
-  bcs raster8                   // 2: 7 bit set means we use 8th bit of raster irq 
   lda CONTROL_1                 // 4:
+  bcs raster8                   // 2: 7 bit set means we use 8th bit of raster irq 
   and #neg(CONTROL_1_RASTER8)   // 2: 7..0 bits are enough for raster irq
   jmp nextRaster8               // 3
 raster8:
@@ -319,27 +319,36 @@ irqHandlers:
     #endif
   irqh8:                        // (28) set vic-ii memory and bank TODO stabilize
     #if IRQH_MEM_BANK
-    lda (listStart),y           // 5
-    sta MEMORY_CONTROL          // 4
-    iny                         // 2
-    lda (listStart),y           // 4
-    ora CIA2_DATA_PORT_A        // 4
-    sta CIA2_DATA_PORT_A        // 4
-    jmp irqhReminder2Args       // 3
+      lda (listStart),y           // 5
+      sta MEMORY_CONTROL          // 4
+      iny                         // 2
+      lda CIA2_DATA_PORT_A
+      and #%11111100
+      ora (listStart),y
+      sta CIA2_DATA_PORT_A
+      jmp irqhReminder2Args       // 3
     #endif
   irqh9:                        // (16) set vic-ii memory TODO stabilize
-    #if IRQH_MEM
-    lda (listStart),y           // 5
-    sta MEMORY_CONTROL          // 4
-    jmp irqhReminder            // 3
+    #if IRQH_JSR
+      lda (listStart),y           // 4
+      sta irqh9jsr+1             // 4
+      iny                         // 2
+      lda (listStart),y           // 4
+      sta irqh9jsr+2             // 4
+      sty listPtr
+    irqh9jsr:
+      jsr $0000
+      ldy listPtr
+      jmp irqhReminder2Args
     #endif
   irqh10:                       // HIRES Bitmap mode (memory control | bank)
     #if IRQH_MODE_HIRES_BITMAP
       lda (listStart),y
       sta MEMORY_CONTROL
       iny
-      lda (listStart),y
-      ora CIA2_DATA_PORT_A
+      lda CIA2_DATA_PORT_A
+      and #%11111100
+      ora (listStart),y
       sta CIA2_DATA_PORT_A
       setVideoMode(STANDARD_BITMAP_MODE)
       jmp irqhReminder2Args
@@ -349,8 +358,9 @@ irqHandlers:
       lda (listStart),y
       sta MEMORY_CONTROL
       iny
-      lda (listStart),y
-      ora CIA2_DATA_PORT_A
+      lda CIA2_DATA_PORT_A
+      and #%11111100
+      ora (listStart),y
       sta CIA2_DATA_PORT_A
       setVideoMode(MULTICOLOR_BITMAP_MODE)
       jmp irqhReminder2Args
@@ -360,8 +370,9 @@ irqHandlers:
       lda (listStart),y
       sta MEMORY_CONTROL
       iny
-      lda (listStart),y
-      ora CIA2_DATA_PORT_A
+      lda CIA2_DATA_PORT_A
+      and #%11111100
+      ora (listStart),y
       sta CIA2_DATA_PORT_A
       setVideoMode(STANDARD_TEXT_MODE)
       jmp irqhReminder2Args
@@ -371,8 +382,9 @@ irqHandlers:
       lda (listStart),y
       sta MEMORY_CONTROL
       iny
-      lda (listStart),y
-      ora CIA2_DATA_PORT_A
+      lda CIA2_DATA_PORT_A
+      and #%11111100
+      ora (listStart),y
       sta CIA2_DATA_PORT_A
       setVideoMode(MULTICOLOR_TEXT_MODE)
       jmp irqhReminder2Args
@@ -382,8 +394,9 @@ irqHandlers:
       lda (listStart),y
       sta MEMORY_CONTROL
       iny
-      lda (listStart),y
-      ora CIA2_DATA_PORT_A
+      lda CIA2_DATA_PORT_A
+      and #%11111100
+      ora (listStart),y
       sta CIA2_DATA_PORT_A
       setVideoMode(EXTENDED_TEXT_MODE)
       jmp irqhReminder2Args
