@@ -23,7 +23,7 @@
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
 .label LIST_PTR = $04
-.label COUNTER_PTR = $05
+.label COUNTER_PTR = $07
 
 .var music = LoadSid("Noisy_Pillars_tune_1.sid")
 .print "SID Music details"

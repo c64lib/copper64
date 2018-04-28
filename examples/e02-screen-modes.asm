@@ -11,8 +11,8 @@
  
 #define IRQH_MODE_HIRES_BITMAP
 #define IRQH_MODE_HIRES_TEXT
-#define IRQH_MODE_MULTIC_BITMAP
-#define IRQH_MODE_MULTIC_TEXT
+//#define IRQH_MODE_MULTIC_BITMAP
+//#define IRQH_MODE_MULTIC_TEXT
 #define IRQH_JSR
 
 #import "chipset/mos6510.asm"
@@ -71,7 +71,12 @@ start:
 block:
   nop
   lda $ff00
-  lda $ff00,y
+  sta $ff00
+  nop
+  nop
+  lda $ff00
+  lda $ff
+  lda $ffff
   jmp block
 custom1:  
   inc c64lib.BORDER_COL
@@ -85,9 +90,12 @@ copper: {
 
 .align $100
 copperList: {
-  copperEntry(85, c64lib.IRQH_MODE_HIRES_BITMAP, getBitmapMemory(0, 0), 0)
-  copperEntry(133, c64lib.IRQH_MODE_HIRES_TEXT, getTextMemory(1, 2), 0)
-  copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
+  copperEntry(85, c64lib.IRQH_MODE_HIRES_BITMAP, getBitmapMemory(0, 0), 3)
+  copperEntry(133, c64lib.IRQH_MODE_HIRES_TEXT, getTextMemory(1, 2), 3)
+  //copperEntry(166, c64lib.IRQH_MODE_MULTIC_TEXT, getTextMemory(1, 2), 3)
+  //copperEntry(177, c64lib.IRQH_MODE_MULTIC_BITMAP, getBitmapMemory(0, 0), 3)
+  copperEntry(213, c64lib.IRQH_MODE_HIRES_TEXT, getTextMemory(1, 2), 3)
+  //copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
   copperLoop()
 }
 
