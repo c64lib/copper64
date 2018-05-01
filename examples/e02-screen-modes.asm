@@ -9,8 +9,9 @@
  * GIT repo:  https://github.com/c64lib/copper64
  */
  
-#define IRQH_MODE_HIRES_BITMAP
-#define IRQH_MODE_HIRES_TEXT
+#define IRQH_MODE_MEM
+//#define IRQH_MODE_HIRES_BITMAP
+//#define IRQH_MODE_HIRES_TEXT
 //#define IRQH_MODE_MULTIC_BITMAP
 //#define IRQH_MODE_MULTIC_TEXT
 #define IRQH_JSR
@@ -90,12 +91,12 @@ copper: {
 
 .align $100
 copperList: {
-  copperEntry(85, c64lib.IRQH_MODE_HIRES_BITMAP, getBitmapMemory(0, 0), 3)
-  copperEntry(133, c64lib.IRQH_MODE_HIRES_TEXT, getTextMemory(1, 2), 3)
-  //copperEntry(166, c64lib.IRQH_MODE_MULTIC_TEXT, getTextMemory(1, 2), 3)
-  //copperEntry(177, c64lib.IRQH_MODE_MULTIC_BITMAP, getBitmapMemory(0, 0), 3)
-  copperEntry(213, c64lib.IRQH_MODE_HIRES_TEXT, getTextMemory(1, 2), 3)
-  //copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
+  copperEntry(85, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(0, 0))
+  copperEntry(133, c64lib.IRQH_MODE_MEM, 0, getTextMemory(1, 2))
+  copperEntry(166, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM, getTextMemory(0, 2))
+  copperEntry(177, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM | c64lib.CONTROL_1_BMM, getBitmapMemory(0, 1))
+  copperEntry(213, c64lib.IRQH_MODE_MEM, 0, getTextMemory(1, 2))
+  copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
   copperLoop()
 }
 

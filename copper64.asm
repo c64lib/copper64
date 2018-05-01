@@ -343,7 +343,7 @@ irqHandlers:
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args       // 3
     #endif
-  irqh8:                        // (28) set vic-ii memory and bank TODO stabilize
+  irqh8:                          // (28) set vic-ii memory and bank TODO stabilize
     #if IRQH_MEM_BANK
       lda (listStart),y           // 5
       sta MEMORY_CONTROL          // 4
@@ -354,10 +354,40 @@ irqHandlers:
       sta CIA2_DATA_PORT_A
       jmp irqhReminder2Args       // 3
     #endif
-  irqh9:
+  irqh9:                          // change vic-ii mode and memory settings
+                                  // arg 1: CR2: 00010000 Multicolor
+                                  // arg 1: CR1: 01100000 ExtendedColor, Bitmap mode
+                                  // arg 2: Memory Control
     #if IRQH_MODE_MEM
+      stabilize(irqh9Stabilized, commonEnd, false)
+    irqh9Stabilized:
+      txs                         // 2
+      lda (listStart),y           // 5
+      iny                         // 2
+      sta listPtr                 // 3
+      and #CONTROL_2_MCM          // 2
+      beq irqh9_1
+      lda CONTROL_2               // 4
+      ora #CONTROL_2_MCM          // 2
+      jmp irqh9_2                 // 3
+    irqh9_1:
+      lda CONTROL_2               // 4
+      and #neg(CONTROL_2_MCM)     // 2
+    irqh9_2:
+      sta CONTROL_2               // *4
+      lda listPtr                 // *3
+      and #(CONTROL_1_ECM | CONTROL_1_BMM) // *2
+      sta listPtr                 // *3
+      lda CONTROL_1               // *4
+      and #(neg(CONTROL_1_ECM | CONTROL_1_BMM)) // *2
+      ora listPtr                 // *3
+      sta CONTROL_1               // *4
+      lda (listStart),y           // *5
+      sta MEMORY_CONTROL          // *4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
     #endif
-  irqh10:                        // // jsr (jsr address lo | lsr address hi)
+  irqh10:                         // jsr (jsr address lo | lsr address hi)
     #if IRQH_JSR
       lda (listStart),y           // 4
       sta irqh10jsr+1             // 4
