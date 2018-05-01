@@ -33,11 +33,13 @@
 .label IRQH_BORDER_BG_0_COL     = 6
 .label IRQH_BORDER_BG_0_DIFF    = 7
 .label IRQH_MEM_BANK            = 8
-.label IRQH_MEM                 = 9
-.label IRQH_MODE_MEM_BANK       = 10
-.label IRQH_MODE_MEM            = 11
-.label IRQH_MODE                = 12
-.label IRQH_JSR                 = 13
+.label IRQH_MODE_MEM            = 9
+.label IRQH_JSR                 = 10
+.label IRQH_MODE_HIRES_BITMAP   = 11
+.label IRQH_MODE_MULTIC_BITMAP  = 12
+.label IRQH_MODE_HIRES_TEXT     = 13
+.label IRQH_MODE_MULTIC_TEXT    = 14
+.label IRQH_MODE_EXTENDED_TEXT  = 15
 
 .label IRQH_CTRL_RASTER8        = %10000000
 .label IRQH_SKIP                = $00
@@ -106,6 +108,28 @@
   sta c64lib.IRQ_HI
 }
 
+.macro setBankMemoryAndMode(mode, listStart, listPtr, accu) {
+  lda CONTROL_2                                       // 4
+  and #neg(CONTROL_2_MCM)                             // 2
+  ora #calculateControl2ForMode(mode) // 2
+  sta accu                                            // 4
+  lda (listStart),y                                   // 5
+  sta listPtr                                         // 3
+  iny                                                 // 2
+  lda CIA2_DATA_PORT_A                                // 4
+  and #%11111100                                      // 2
+  ora (listStart),y                                   // 5
+  sta CIA2_DATA_PORT_A                                // *4
+  lda listPtr                                         // *3
+  sta MEMORY_CONTROL                                  // *4
+  lda CONTROL_1                                       // *4
+  and #neg(CONTROL_1_ECM | CONTROL_1_BMM)             // *2
+  ora #calculateControl1ForMode(mode) // *2
+  sta CONTROL_1                                       // *4
+  lda accu                                            // *4
+  sta CONTROL_2                                       // *4
+}
+
 /*
  * Creates single entry of copper list.
  * raster - at which raster line (supports all raser lines, also > 255)
@@ -161,6 +185,10 @@
   sty listPtr
   cli
   rts // end of initialization
+accu1:
+  .byte $00
+accu2:
+  .byte $00
   
 commonEnd:
   stabilizeCommonEnd()
@@ -193,8 +221,8 @@ fetchNext:                      // fetch new copper list item, y should point at
   cmp #IRQH_SKIP                // 2
   beq skip                      // 2: if #$FF then skip copper list position
   rol                           // 2
-  bcs raster8                   // 2: 7 bit set means we use 8th bit of raster irq 
   lda CONTROL_1                 // 4:
+  bcs raster8                   // 2: 7 bit set means we use 8th bit of raster irq 
   and #neg(CONTROL_1_RASTER8)   // 2: 7..0 bits are enough for raster irq
   jmp nextRaster8               // 3
 raster8:
@@ -315,53 +343,107 @@ irqHandlers:
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args       // 3
     #endif
-  irqh8:                        // (28) set vic-ii memory and bank TODO stabilize
+  irqh8:                          // (28) set vic-ii memory and bank TODO stabilize
     #if IRQH_MEM_BANK
-    lda (listStart),y           // 5
-    sta MEMORY_CONTROL          // 4
-    iny                         // 2
-    lda (listStart),y           // 4
-    ora CIA2_DATA_PORT_A        // 4
-    sta CIA2_DATA_PORT_A        // 4
-    jmp irqhReminder2Args       // 3
+      lda (listStart),y           // 5
+      sta MEMORY_CONTROL          // 4
+      iny                         // 2
+      lda CIA2_DATA_PORT_A
+      and #%11111100
+      ora (listStart),y
+      sta CIA2_DATA_PORT_A
+      jmp irqhReminder2Args       // 3
     #endif
-  irqh9:                        // (16) set vic-ii memory TODO stabilize
-    #if IRQH_MEM
-    lda (listStart),y           // 5
-    sta MEMORY_CONTROL          // 4
-    jmp irqhReminder            // 3
+  irqh9:                          // change vic-ii mode and memory settings
+                                  // arg 1: CR2: 00010000 Multicolor
+                                  // arg 1: CR1: 01100000 ExtendedColor, Bitmap mode
+                                  // arg 2: Memory Control
+    #if IRQH_MODE_MEM
+      stabilize(irqh9Stabilized, commonEnd, false)
+    irqh9Stabilized:
+      txs                         // 2
+      lda (listStart),y           // 5
+      iny                         // 2
+      sta listPtr                 // 3
+      and #CONTROL_2_MCM          // 2
+      beq irqh9_1
+      lda CONTROL_2               // 4
+      ora #CONTROL_2_MCM          // 2
+      jmp irqh9_2                 // 3
+    irqh9_1:
+      lda CONTROL_2               // 4
+      and #neg(CONTROL_2_MCM)     // 2
+    irqh9_2:
+      sta CONTROL_2               // *4
+      lda listPtr                 // *3
+      and #(CONTROL_1_ECM | CONTROL_1_BMM) // *2
+      sta listPtr                 // *3
+      lda CONTROL_1               // *4
+      and #(neg(CONTROL_1_ECM | CONTROL_1_BMM)) // *2
+      ora listPtr                 // *3
+      sta CONTROL_1               // *4
+      lda (listStart),y           // *5
+      sta MEMORY_CONTROL          // *4
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
     #endif
-  irqh10:                       // mode mem bank
-    #if IRQH_MODE_MEM_BANK      // TODO t.b.d.
-    #endif
-  irqh11:                       // mode mem
-    #if IRQH_MODE_MEM           // TODO t.b.d.
-    #endif
-  irqh12:                       // mode (control 1 | control 2) TODO stabilize
-    #if IRQH_MODE
-    lda CONTROL_1               // 4               
-    and #neg(CONTROL_1_ECM | CONTROL_1_BMM) // 3
-    ora (listStart),y           // 4
-    sta CONTROL_1               // 4
-    iny                         // 2
-    lda CONTROL_2               // 4
-    and #neg(CONTROL_2_MCM)     // 3
-    ora (listStart),y           // 4
-    sta CONTROL_2
-    jmp irqhReminder2Args       // 3
-    #endif
-  irqh13:                       // jsr (jsr address lo | lsr address hi)
+  irqh10:                         // jsr (jsr address lo | lsr address hi)
     #if IRQH_JSR
-    lda (listStart),y           // 4
-    sta irqh13jsr+1             // 4
-    iny                         // 2
-    lda (listStart),y           // 4
-    sta irqh13jsr+2             // 4
-    sty listPtr
-  irqh13jsr:
-    jsr $0000
-    ldy listPtr
-    jmp irqhReminder2Args
+      lda (listStart),y           // 4
+      sta irqh10jsr+1             // 4
+      iny                         // 2
+      lda (listStart),y           // 4
+      sta irqh10jsr+2             // 4
+      sty listPtr
+    irqh10jsr:
+      jsr $0000
+      ldy listPtr
+      jmp irqhReminder2Args
+    #endif
+  irqh11:                       // HIRES Bitmap mode (memory control | bank)
+    #if IRQH_MODE_HIRES_BITMAP
+      stabilize(irqh11Stabilized, commonEnd, false)
+    irqh11Stabilized:
+      txs
+      setBankMemoryAndMode(STANDARD_BITMAP_MODE, listStart, listPtr, accu1)
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
+    #endif
+  irqh12:                       // MULTIC Bitmap mode (memory control | bank)
+    #if IRQH_MODE_MULTIC_BITMAP
+      stabilize(irqh12Stabilized, commonEnd, false)
+    irqh12Stabilized:
+      txs
+      setBankMemoryAndMode(MULTICOLOR_BITMAP_MODE, listStart, listPtr, accu1)
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
+    #endif
+  irqh13:                       // HIRES Text (memory control | bank) TODO stabilize
+    #if IRQH_MODE_HIRES_TEXT
+      stabilize(irqh13Stabilized, commonEnd, false)
+    irqh13Stabilized:
+      txs
+      setBankMemoryAndMode(STANDARD_TEXT_MODE, listStart, listPtr, accu1)
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
+    #endif
+  irqh14:                       // MULTIC Text (memory control | bank) TODO stabilize
+    #if IRQH_MODE_MULTIC_TEXT
+      stabilize(irqh14Stabilized, commonEnd, false)
+    irqh14Stabilized:
+      txs
+      setBankMemoryAndMode(MULTICOLOR_TEXT_MODE, listStart, listPtr, accu1)
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
+    #endif
+  irqh15:                       // EXTENDED Background Text (memory control | bank) TODO stabilize
+    #if IRQH_MODE_EXTENDED_TEXT
+      stabilize(irqh15Stabilized, commonEnd, false)
+    irqh15Stabilized:
+      txs
+      setBankMemoryAndMode(EXTENDED_TEXT_MODE, listStart, listPtr, accu1)
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
     #endif
   irqhReminder:
     iny
@@ -385,7 +467,7 @@ irqHandlers:
 jumpTable:
   .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
-  .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13
+  .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13, <irqh14, <irqh15
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
