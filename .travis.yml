@@ -10,6 +10,7 @@ script:
   - ka -libdir cpm_modules copper64-test.asm
   - ka -libdir cpm_modules examples/e01-color-raster-bars.asm
   - ka -libdir cpm_modules examples/e02-screen-modes.asm
+  - ka -libdir cpm_modules examples/e03-bitmap-demo.asm
 notifications:
   email:
     on_success: change
