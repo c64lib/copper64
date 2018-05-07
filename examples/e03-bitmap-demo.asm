@@ -23,6 +23,8 @@
 .label ANIMATE_BUFFER = $05
 .label ANIMATION_DELAY_COUNTER = $06
 
+.label DELAY = 16
+
 .label BITMAP_BANK = 0
 .label BITMAP_SCREEN_BANK = 8
 .label TEXT_SCREEN_BANK = 9
@@ -50,7 +52,7 @@ BasicUpstart(start) // Basic start routine
 
 start:
 
-  lda #8
+  lda #DELAY
   sta ANIMATION_DELAY_COUNTER
 
   // initialize sound  
@@ -118,6 +120,12 @@ loop:
   rts
 }
 animateCharset: {
+  dec ANIMATION_DELAY_COUNTER
+  beq next
+  rts
+next:
+  lda #DELAY
+  sta ANIMATION_DELAY_COUNTER
   lda CHARSET 
   sta ANIMATE_BUFFER
   lda CHARSET+1
