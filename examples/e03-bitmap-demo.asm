@@ -16,12 +16,17 @@
 #import "chipset/vic2.asm"
 #import "text/text.asm"
 #import "../copper64.asm"
-#import "e03-gfx.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
 .label LIST_PTR = $04
-.label COUNTER_PTR = $05
+.label ANIMATE_BUFFER = $05
+.label ANIMATION_DELAY_COUNTER = $06
+
+.label BITMAP_BANK = 0
+.label BITMAP_SCREEN_BANK = 8
+.label TEXT_SCREEN_BANK = 9
+.label TEXT_CHARSET_BANK = 5
 
 .var music = LoadSid("Noisy_Pillars_tune_1.sid")
 .print "SID Music details"
@@ -34,6 +39,9 @@
 .print "play: $" + toHexString(music.play)
 .print "start song: " + music.startSong
 
+.var gfxTemplate = "Header=0,Bitmap=2,Screen=8002"
+.var gfx  = LoadBinary("cbm-intro.art", gfxTemplate)
+
 *=$0801 "Basic Upstart"
 BasicUpstart(start) // Basic start routine
 
@@ -42,36 +50,37 @@ BasicUpstart(start) // Basic start routine
 
 start:
 
+  lda #8
+  sta ANIMATION_DELAY_COUNTER
+
   // initialize sound  
   ldx #0
   ldy #0
   lda #music.startSong-1
   jsr music.init
+  jsr fillColorMem
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
   lda #BLACK
   sta c64lib.BG_COL_0
   lda #GREEN
   sta c64lib.BORDER_COL
+  
+  lda #$00
+  ldy #$00
+fillText:
+  sta $6400,y
+  sta $6500,y
+  sta $6600,y
+  sta $6700,y
+  iny
+  bne fillText
+  
   setVICBank(%10)
   configureMemory(c64lib.RAM_IO_RAM)
-  setVideoMode(c64lib.MULTICOLOR_BITMAP_MODE)
-  configureBitmapMemory(8, 0)
-  
-  // copy color ram
-  ldy #$00
-copyLoop:
-  lda colorMemory, y
-  sta c64lib.COLOR_RAM, y
-  lda colorMemory + $100, y
-  sta c64lib.COLOR_RAM + $100, y
-  lda colorMemory + $200, y
-  sta c64lib.COLOR_RAM + $200, y
-  lda colorMemory + $300, y
-  sta c64lib.COLOR_RAM + $300, y
-  iny
-  bne copyLoop
-  
+  setVideoMode(c64lib.STANDARD_BITMAP_MODE)
+  configureBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK)
+   
   // set up address of display list
   lda #<copperList
   sta DISPLAY_LIST_PTR_LO
@@ -90,30 +99,78 @@ block:
   lda $ff
   lda $ffff
   jmp block
-custom1:  
+playMusic: {
   inc c64lib.BORDER_COL
   jsr music.play
   dec c64lib.BORDER_COL
   rts
-  
+}
+fillColorMem: {
+  lda #GRAY
+  ldx #0
+loop:
+  sta c64lib.COLOR_RAM, x
+  sta c64lib.COLOR_RAM + $100, x
+  sta c64lib.COLOR_RAM + $200, x
+  sta c64lib.COLOR_RAM + $300, x
+  inx
+  bne loop
+  rts
+}
+animateCharset: {
+  lda CHARSET 
+  sta ANIMATE_BUFFER
+  lda CHARSET+1
+  sta CHARSET
+  lda CHARSET+2
+  sta CHARSET+1
+  lda CHARSET+3
+  sta CHARSET+2
+  lda CHARSET+4
+  sta CHARSET+3
+  lda CHARSET+5
+  sta CHARSET+4
+  lda CHARSET+6
+  sta CHARSET+5
+  lda CHARSET+7
+  sta CHARSET+6
+  lda ANIMATE_BUFFER
+  sta CHARSET+7
+  rts
+}
+
 copper: {
   initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
 }
 
 .align $100
 copperList: {
-  //copperEntry(85, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(0, 0))
-  //copperEntry(133, c64lib.IRQH_MODE_MEM, 0, getTextMemory(1, 2))
-  //copperEntry(166, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM, getTextMemory(0, 2))
-  //copperEntry(177, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM | c64lib.CONTROL_1_BMM, getBitmapMemory(0, 1))
-  //copperEntry(213, c64lib.IRQH_MODE_MEM, 0, getTextMemory(1, 2))
-  copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
+  copperEntry(9, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
+  copperEntry(85, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
+  copperEntry(133, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
+  copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 }
 
 hexChars:
 	.text "0123456789abcdef"
-
+  
 *=music.location "Music"
 .fill music.size, music.getData(i)
 
+*=$4000 "Bitmap"
+  .fill gfx.getBitmapSize(), gfx.getBitmap(i)
+  
+*=$6000 "Screen Memory"
+  .fill gfx.getScreenSize(), gfx.getScreen(i)
+
+*=$6800 "Charset"
+CHARSET:
+  .byte 0
+  .byte %00100000
+  .byte %00100000
+  .byte %00100000
+  .byte %00100000
+  .byte %00100000
+  .byte %00111110
+  .byte 0
