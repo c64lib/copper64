@@ -11,6 +11,7 @@
  
 #define IRQH_MODE_MEM
 #define IRQH_JSR
+#define VISUAL_DEBUG
 
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
@@ -23,7 +24,7 @@
 .label ANIMATE_BUFFER = $05
 .label ANIMATION_DELAY_COUNTER = $06
 
-.label DELAY = 16
+.label DELAY = 4
 
 .label BITMAP_BANK = 0
 .label BITMAP_SCREEN_BANK = 8
@@ -42,7 +43,7 @@
 .print "start song: " + music.startSong
 
 .var gfxTemplate = "Header=0,Bitmap=2,Screen=8002"
-.var gfx  = LoadBinary("cbm-intro.art", gfxTemplate)
+.var gfx  = LoadBinary("frog.art", gfxTemplate)
 
 *=$0801 "Basic Upstart"
 BasicUpstart(start) // Basic start routine
@@ -63,9 +64,9 @@ start:
   jsr fillColorMem
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
-  lda #BLACK
+  lda #BLUE
   sta c64lib.BG_COL_0
-  lda #GREEN
+  lda #BLACK
   sta c64lib.BORDER_COL
   
   lda #$00
@@ -120,8 +121,10 @@ loop:
   rts
 }
 animateCharset: {
+  debugBorderStart()
   dec ANIMATION_DELAY_COUNTER
   beq next
+  debugBorderEnd()
   rts
 next:
   lda #DELAY
@@ -144,6 +147,7 @@ next:
   sta CHARSET+6
   lda ANIMATE_BUFFER
   sta CHARSET+7
+  debugBorderEnd()
   rts
 }
 
@@ -153,9 +157,9 @@ copper: {
 
 .align $100
 copperList: {
-  copperEntry(9, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
-  copperEntry(85, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
-  copperEntry(133, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
+  copperEntry(11, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
+  copperEntry(128, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
+  copperEntry(193, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
   copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 }
@@ -175,10 +179,10 @@ hexChars:
 *=$6800 "Charset"
 CHARSET:
   .byte 0
-  .byte %00100000
-  .byte %00100000
-  .byte %00100000
-  .byte %00100000
-  .byte %00100000
+  .byte %00001110
+  .byte %00011100
   .byte %00111110
+  .byte %00001100
+  .byte %00011000
+  .byte %00010000
   .byte 0

@@ -194,7 +194,6 @@ commonEnd:
   stabilizeCommonEnd()
   
 copperIrq:                    // major interrupt handler for copper64; interrupt not stabilized at this point
-  :debugBorderStart()
   pha
   tya
   pha
@@ -212,7 +211,6 @@ irqHandlersReturn:              // here we jump back from handler routine, due t
   pla
   tay
   pla
-  :debugBorderEnd()
   rti
 fetchNext:                      // fetch new copper list item, y should point at current list position
   lda (listStart),y             // 5: < 1st byte - control
