@@ -10,6 +10,7 @@
  */
  
 #define IRQH_MODE_MEM
+#define IRQH_BG_COL_0
 #define IRQH_JSR
 #define VISUAL_DEBUG
 
@@ -69,7 +70,7 @@ start:
   lda #BLACK
   sta c64lib.BORDER_COL
   
-  lda #$00
+  lda #$01
   ldy #$00
 fillText:
   sta $6400,y
@@ -109,7 +110,7 @@ playMusic: {
   rts
 }
 fillColorMem: {
-  lda #GRAY
+  lda #LIGHT_GRAY
   ldx #0
 loop:
   sta c64lib.COLOR_RAM, x
@@ -158,8 +159,12 @@ copper: {
 .align $100
 copperList: {
   copperEntry(11, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
-  copperEntry(128, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
+  copperEntry(52, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
+  copperEntry(56, c64lib.IRQH_BG_COL_0, BLUE, 0)
+  copperEntry(113, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
   copperEntry(193, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
+  copperEntry(241, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
+  copperEntry(246, c64lib.IRQH_BG_COL_0, GREY, 0)
   copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 }
@@ -177,6 +182,7 @@ hexChars:
   .fill gfx.getScreenSize(), gfx.getScreen(i)
 
 *=$6800 "Charset"
+  .byte 0, 0, 0, 0, 0, 0, 0, 0
 CHARSET:
   .byte 0
   .byte %00001110
