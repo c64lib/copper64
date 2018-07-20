@@ -48,7 +48,6 @@ Let's look at following example:
 
 	.align $100
 	copperList: {
-
 	  copperEntry(46, c64lib.IRQH_BORDER_COL, WHITE, 0)
 	  copperEntry(81, c64lib.IRQH_BG_COL_0, YELLOW, 0)
 	  copperEntry(101, c64lib.IRQH_BG_COL_0, LIGHT_GREEN, 0)
@@ -66,7 +65,7 @@ Let's look at following example:
 
 We mark beginning of the list with label (`copperList`), because we need this address later on when initializing copper64. 
 
-Then we have sequence of copper entries, each taking couple of parameters. First parameter is always a raster line (we can use here numbers bigger than 255, macro takes care of handling this extra bit). It is up to coder to ensure that these numbers are ordered and growing. If you mess up ordering, you'll get junk on the screen - you have been warned.
+Then we have sequence of copper entries, each taking couple of parameters. First parameter is always a raster line (we can use here numbers greater than 255, macro takes care of handling this extra bit). It is up to coder to ensure that these numbers are ordered and growing. If you mess up ordering, you'll get junk on the screen - you have been warned.
 
 Copper64 uses double interrupt technique to stabilize raster. Therefore you cannot install handlers too often - there will be not enough time to launch next handler just because of this stabilization that can take up to 3 raster lines. You also need to remember, that stabilization does not support active sprites (yet) nor bad lines. So, you should place your entries wisely.
 
