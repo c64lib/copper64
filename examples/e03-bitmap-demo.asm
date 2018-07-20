@@ -25,7 +25,7 @@
 .label ANIMATE_BUFFER = $05
 .label ANIMATION_DELAY_COUNTER = $06
 
-.label DELAY = 4
+.label DELAY = 2
 
 .label BITMAP_BANK = 0
 .label BITMAP_SCREEN_BANK = 8
