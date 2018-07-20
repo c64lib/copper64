@@ -9,13 +9,13 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 
 # Usage
 ## Using as KickAssembler library
-The concept of writing libraries for KickAssembler has been already roughly sketched in <https://maciejmalecki.github.io/blog/assembler-libraries>. Copper64 is intended to be a library too. Copper64 requires other c64lib libraries such as common, chipset and text.
+The concept of writing libraries for KickAssembler has been already roughly sketched in my blog [post](https://maciejmalecki.github.io/blog/assembler-libraries). Copper64 is intended to be a library too. Copper64 requires other c64lib libraries such as common, chipset and text.
 
 ## Running examples
 As for now there are three example programs available that demonstrate capabilities of Copper64 library (all are placed in `examples` directory):
-* `e01-color-raster-bars.asm` - shows colorful raster bars using different combination of border, background and both while playing Noisy Pillars of Jeroen Tel in the background.
-* `e02-screen-modes.asm` - shows several different screen modes mixed together.
-* `e03-bitmap-demo.asm` - mixes regular text and hires bitmap modes while playing music and animating background.
+* [`e01-color-raster-bars.asm`](https://github.com/c64lib/copper64/blob/master/examples/e01-color-raster-bars.asm) - shows colorful raster bars using different combination of border, background and both while playing Noisy Pillars of Jeroen Tel in the background.
+* [`e02-screen-modes.asm`](https://github.com/c64lib/copper64/blob/master/examples/e02-screen-modes.asm) - shows several different screen modes mixed together.
+* [`e03-bitmap-demo.asm`](https://github.com/c64lib/copper64/blob/master/examples/e03-bitmap-demo.asm) - mixes regular text and hires bitmap modes while playing music and animating background.
 
 As library management system is not yet complete, you have to do several steps manually in order to be able to assembly and run examples. One possible approach is following:
 1. Create new directory and name it i.e.: `c64lib`
@@ -45,6 +45,7 @@ Easiest way to learn how to create own "copper list" is to study one of examples
 `copperEntry` can be used multiple times to "install" one of few available IRQ handlers at given raster position. `copperLoop` must always be a last position in display list and it informs copper64 that the list is over and it should loop to the beginning.
 
 Let's look at following example:
+
 	.align $100
 	copperList: {
 
@@ -224,16 +225,65 @@ Changes background color 0 and border color to another values in single step, th
 </table>
 
 ## Set VIC memory register and VIC memory bank
+Changes VIC memory control and VIC memory bank in one step.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_MEM_BANK</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>8</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Value for MEMORY_CONTROL register</td>
+	</tr>
+	<tr>
+		<th>Argument 2</th><td>Value for VIC bank</td>
+	</tr>
+</table>
 
-## Set VIC memory register
+## Set VIC mode and memory settings
+Changes VIC display mode and memory settings in one step. VIC bank cannot be changed.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_MODE_MEM</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>9</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Values for two control registers are packed in one byte: `%00010000` for Multicolor, `%01100000` for ECM or Bitmap</td>
+	</tr>
+	<tr>
+		<th>Argument 2</th><td>Value for MEMORY_CONTROL register</td>
+	</tr>
+</table>
 
-## Set VIC mode, memory register and memory bank
+## Jump to custom subroutine
+Jumps to custom subroutine that can do whatever you want, i.e. play music. Subroutine must end with `rts`.
+<table>
+	<tr>
+		<th>Handler label</th><td><code>IRQH_JSR</code></td>
+	</tr>
+	<tr>
+		<th>Handler code</th><td><code>10</code></td>
+	</tr>
+	<tr>
+		<th>Argument 1</th><td>Low byte of subroutine address</td>
+	</tr>
+	<tr>
+		<th>Argument 2</th><td>High byte of subroutine address</td>
+	</tr>
+</table>
 
-## Set VIC mode and memory register
+## Set hires bitmap mode
 
-## Set VIC mode
+## Set multicolor mode
 
-## Jump to subroutine
+## Set hires text mode
+
+## Set multicolor text mode
+
+## Set extended background mode
 
 # Data model
 Copper64 operates on IRQ table consisting of IRQ entries. Each IRQ entry is
