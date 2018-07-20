@@ -9,9 +9,10 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 
 # Usage
 ## Using as KickAssembler library
+The concept of writing libraries for KickAssembler has been already roughly sketched in <https://maciejmalecki.github.io/blog/assembler-libraries>. Copper64 is intended to be a library too. Copper64 requires other c64lib libraries such as common, chipset and text.
 
 ## Running examples
-As for noew there are three example programs available that demonstrate capabilities of Copper64 library (all are placed in `examples` directory):
+As for now there are three example programs available that demonstrate capabilities of Copper64 library (all are placed in `examples` directory):
 * `e01-color-raster-bars.asm` - shows colorful raster bars using different combination of border, background and both while playing Noisy Pillars of Jeroen Tel in the background.
 * `e02-screen-modes.asm` - shows several different screen modes mixed together.
 * `e03-bitmap-demo.asm` - mixes regular text and hires bitmap modes while playing music and animating background.
@@ -30,15 +31,95 @@ As library management system is not yet complete, you have to do several steps m
    
 3. Assuming that your KickAssembler JAR file is located under `c:\cbm\KickAss.jar` and your `c64lib` directory is located under `c:\cbm\c64lib` run assembler inside of `examples` directory:
 
-	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e01-color-raster-bars.asm
+	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e01-color-raster-bars.asm 
+	>
 	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e02-screen-modes.asm
+	>
 	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e03-bitmap-demo.asm
 	
 4. In result you should get three PRG files that can be launched using VICE or transferred to real hardware and launched there.
 
 ## Define your own copper list
+Easiest way to learn how to create own "copper list" is to study one of examples that are provided in copper64 repository. Copper list is a data structure that should fit entirely into single page of memory (256b) - to ensure this always use `.align $100` directive prior list declaration. Definition of copper list is simplified due to two KickAssembler macros: `copperEntry` and `copperLoop`.
+
+`copperEntry` can be used multiple times to "install" one of few available IRQ handlers at given raster position. `copperLoop` must always be a last position in display list and it informs copper64 that the list is over and it should loop to the beginning.
+
+Let's look at following example:
+	.align $100
+	copperList: {
+
+	  copperEntry(46, c64lib.IRQH_BORDER_COL, WHITE, 0)
+	  copperEntry(81, c64lib.IRQH_BG_COL_0, YELLOW, 0)
+	  copperEntry(101, c64lib.IRQH_BG_COL_0, LIGHT_GREEN, 0)
+	  copperEntry(124, c64lib.IRQH_BG_COL_0, GREY, 0)
+	  copperEntry(131, c64lib.IRQH_BG_COL_0, BLUE, 0)
+	  copperEntry(150, c64lib.IRQH_BORDER_COL, RED, 0)
+	  copperEntry(216, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
+	  copperEntry(221, c64lib.IRQH_BORDER_BG_0_COL, GREY, $00)
+	  copperEntry(227, c64lib.IRQH_BORDER_BG_0_COL, DARK_GREY, $00)
+	  copperEntry(232, c64lib.IRQH_BORDER_BG_0_DIFF, RED, BLUE)
+	  copperEntry(252, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
+	  copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
+	  copperLoop()
+	}
+
+We mark beginning of the list with label (`copperList`), because we need this address later on when initializing copper64. 
+
+Then we have sequence of copper entries, each taking couple of parameters. First parameter is always a raster line (we can use here numbers bigger than 255, macro takes care of handling this extra bit). It is up to coder to ensure that these numbers are ordered and growing. If you mess up ordering, you'll get junk on the screen - you have been warned.
+
+Copper64 uses double interrupt technique to stabilize raster. Therefore you cannot install handlers too often - there will be not enough time to launch next handler just because of this stabilization that can take up to 3 raster lines. You also need to remember, that stabilization does not support active sprites (yet) nor bad lines. So, you should place your entries wisely.
+
+Second attribute to the entry is always a handler code. All supported handlers are defined as KickAssembler labels in copper64 library (all of them start with `IRQH_` prefix). There is one limitation: overall size of handlers code cannot extend single memory page (256 bytes). In consequence, all existing handlers cannot be used in the same time (they weight too much), therefore there is enabling mechanism available. In your program you must enable each handler that you're going to use manually:
+
+	#define IRQH_BORDER_COL
+	#define IRQH_BG_COL_0
+	#define IRQH_BORDER_BG_0_COL
+	#define IRQH_BORDER_BG_0_DIFF
+	#define IRQH_JSR
+
+	#import "chipset/mos6510.asm"
+	#import "chipset/vic2.asm"
+	#import "text/text.asm"
+	#import "../copper64.asm"
+ 
+As you see you can do it with `#define` directive. Just make sure that you define all of them before importing `copper64.asm`, otherwise it will not work.
+
+Next two parameters have different meaning depending on the handler.
+
+Examples:
+
+	copperEntry(46, c64lib.IRQH_BORDER_COL, WHITE, 0)
+
+Changes border color to WHITE in line 46. In this case last parameter is not used, we set it to 0.
+
+	copperEntry(232, c64lib.IRQH_BORDER_BG_0_DIFF, RED, BLUE)
+
+Changes border color to RED and background color to BLUE in line 232.
+
+	copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
+	
+Launches custom subroutine at line 257, address of this subroutine is specified in last two parameters.
 
 ## Initialize IRQ system
+The `initCopper` macro installs copper64 initialization routine that can be then called with jsr. Macro takes two parameters - an arbitrary chosen addresses on zero page. That's it - copper64 requires only two zero page registers for functioning. It's up to you which two to choose.
+
+	  // set up address of display list
+	  lda #<copperList
+	  sta DISPLAY_LIST_PTR_LO
+	  lda #>copperList
+	  sta DISPLAY_LIST_PTR_HI
+
+	  // initialize copper64 routine
+	  jsr copper
+	block:
+	  nop
+	  lda $ff00
+	  lda $ff00,y
+	  jmp block			// infinite loop
+	copper: {
+	  initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
+	}
+
 
 # IRQ handlers reference
 ## Set border color
