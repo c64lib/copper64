@@ -6,10 +6,35 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 ## Build status
 
 * master: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=master)](https://travis-ci.org/c64lib/copper64)
-* develop: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=develop)](https://travis-ci.org/c64lib/copper64)
 
 # Usage
 ## Using as KickAssembler library
+
+## Running examples
+As for noew there are three example programs available that demonstrate capabilities of Copper64 library (all are placed in `examples` directory):
+* `e01-color-raster-bars.asm` - shows colorful raster bars using different combination of border, background and both while playing Noisy Pillars of Jeroen Tel in the background.
+* `e02-screen-modes.asm` - shows several different screen modes mixed together.
+* `e03-bitmap-demo.asm` - mixes regular text and hires bitmap modes while playing music and animating background.
+
+As library management system is not yet complete, you have to do several steps manually in order to be able to assembly and run examples. One possible approach is following:
+1. Create new directory and name it i.e.: `c64lib`
+2. Inside of this directory clone `common`, `chipset`, `text` and `copper64` libraries:
+
+   git clone https://github.com/c64lib/common.git
+   
+   git clone https://github.com/c64lib/chipset.git
+   
+   git clone https://github.com/c64lib/text.git
+   
+   git clone https://github.com/c64lib/copper64.git
+   
+3. Assuming that your KickAssembler JAR file is located under `c:\cbm\KickAss.jar` and your `c64lib` directory is located under `c:\cbm\c64lib` run assembler inside of `examples` directory:
+
+	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e01-color-raster-bars.asm
+	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e02-screen-modes.asm
+	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e03-bitmap-demo.asm
+	
+4. In result you should get three PRG files that can be launched using VICE or transferred to real hardware and launched there.
 
 ## Define your own copper list
 
