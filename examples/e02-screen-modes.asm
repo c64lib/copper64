@@ -24,7 +24,8 @@
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
 .label LIST_PTR = $04
-.label COUNTER_PTR = $05
+.label SCREEN_PTR = 1024
+
 
 .var music = LoadSid("Noisy_Pillars_tune_1.sid")
 .print "SID Music details"
@@ -44,19 +45,10 @@ BasicUpstart(start) // Basic start routine
 *=$3000 "Program"
 
 start:
-  lda #$00
-  sta COUNTER_PTR
-  .for (var i = 0; i < 25; i++) {
-    outByteHex(COUNTER_PTR, 1024, 0, i, BLACK, hexChars)
-    outByteHex(COUNTER_PTR, 1024, 38, i, BLACK, hexChars)
-    inc COUNTER_PTR
-  }
 
-  // initialize sound  
-  ldx #0
-  ldy #0
-  lda #music.startSong-1
-  jsr music.init
+  jsr drawMarks
+  jsr initSound
+
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
   configureMemory(c64lib.RAM_IO_RAM)
@@ -79,12 +71,37 @@ block:
   lda $ff
   lda $ffff
   jmp block
-custom1:  
+custom1: {
   inc c64lib.BORDER_COL
   jsr music.play
   dec c64lib.BORDER_COL
   rts
+}
+
+initSound: {
+  ldx #0
+  ldy #0
+  lda #music.startSong-1
+  jsr music.init
+  rts
+}
+
+drawMarks: {
+  lda #$00
+  sta counterPtr
   
+nextRow:
+  pushWordParamV(counterPtr); pushWordParamPtr(screenPtr); jsr outHex
+  add16(38, screenPtr)
+  pushWordParamV(counterPtr); pushWordParamPtr(screenPtr); jsr outHex
+  add16(2, screenPtr)
+  inc counterPtr
+  lda counterPtr
+  cmp #25
+  bne nextRow
+  rts
+}
+
 copper: {
   initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
 }
@@ -100,9 +117,9 @@ copperList: {
   copperLoop()
 }
 
-hexChars:
-	.text "0123456789abcdef"
+counterPtr: .byte 0
+screenPtr:  .word SCREEN_PTR
+outHex:     outHex()
 
 *=music.location "Music"
 .fill music.size, music.getData(i)
-

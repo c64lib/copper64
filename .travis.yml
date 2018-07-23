@@ -3,9 +3,9 @@ sudo: false
 before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/c64lib/travis-ci/master/install.sh)
 script:
-  - cpm common https://github.com/c64lib/common/archive/master.tar.gz
+  - cpm common https://github.com/c64lib/common/archive/TEXT-1.tar.gz
   - cpm chipset https://github.com/c64lib/chipset/archive/master.tar.gz 
-  - cpm text https://github.com/c64lib/text/archive/master.tar.gz 
+  - cpm text https://github.com/c64lib/text/archive/TEXT-1.tar.gz 
   - ka -libdir cpm_modules copper64.asm
   - ka -libdir cpm_modules copper64-test.asm
   - ka -libdir cpm_modules examples/e01-color-raster-bars.asm
