@@ -83,6 +83,11 @@ initSound: {
 }
 
 drawMarks: {
+
+  pushWordParamV(helloWorld)
+  pushWordParamV(SCREEN_PTR + getTextOffset(10, 14))
+  jsr outText
+  
   lda #$00
   sta counterPtr
   
@@ -123,6 +128,9 @@ copperList: {
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR
 outHex:     outHex()
+outText:	outText()
+helloWorld: .text "*** hello world ***" 
+			.byte $FF
 
 *=music.location "Music"
 .fill music.size, music.getData(i)
