@@ -91,9 +91,9 @@ drawMarks: {
   sta counterPtr
   
 nextRow:
-  pushWordParamV(counterPtr); pushWordParamPtr(screenPtr); jsr outHex
+  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
   add16(38, screenPtr)
-  pushWordParamV(counterPtr); pushWordParamPtr(screenPtr); jsr outHex
+  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
   add16(2, screenPtr)
   inc counterPtr
   lda counterPtr

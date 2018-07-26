@@ -84,17 +84,15 @@ initSound: {
 
 drawMarks: {
 
-  pushWordParamV(helloWorld)
-  pushWordParamV(SCREEN_PTR + getTextOffset(10, 14))
-  jsr outText
+  pushParamW(helloWorld); pushParamW(SCREEN_PTR + getTextOffset(10, 14)); jsr outText
   
   lda #$00
   sta counterPtr
   
 nextRow:
-  pushWordParamV(counterPtr); pushWordParamPtr(screenPtr); jsr outHex
+  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
   add16(38, screenPtr)
-  pushWordParamV(counterPtr); pushWordParamPtr(screenPtr); jsr outHex
+  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
   add16(2, screenPtr)
   inc counterPtr
   lda counterPtr
