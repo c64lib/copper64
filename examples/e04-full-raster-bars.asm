@@ -112,7 +112,7 @@ copperList: {
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR
 outHex:     outHex()
-barDef:     .byte 	0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 10, 11, 12, 13, 14, 15, BLUE, 16
+barDef:     .byte 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, BLUE, 16
 
 *=music.location "Music"
 .fill music.size, music.getData(i)

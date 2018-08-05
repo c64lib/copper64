@@ -455,11 +455,6 @@ irqHandlers:
     #endif
   irqh16: {                     // FULL Color raster bar (bar definition ptr lo | bar definition ptr hi)
     #if IRQH_FULL_RASTER_BAR
-      stabilize(irqh16Stabilized, commonEnd, false)
-    irqh16Stabilized:
-      txs
-      cycleDelay(3)
-      nop
       lda (listStart), y
       sta rasterList + 1
       iny
@@ -474,13 +469,12 @@ irqHandlers:
       ldy RASTER				// 4
       compareAgain: cpy RASTER  // 4
       beq compareAgain          // 2
-      sta BORDER_COL            // 4
+      sta BORDER_COL            // 4 (fully stable if commented out)
       sta BG_COL_0              // 4
       inx						// 2
       jmp rasterList            // 3
     end:
       ldy listPtr
-      setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
     #endif
     }
