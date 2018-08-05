@@ -32,14 +32,19 @@
 .label IRQH_BH_COL_3            = 5
 .label IRQH_BORDER_BG_0_COL     = 6
 .label IRQH_BORDER_BG_0_DIFF    = 7
+
 .label IRQH_MEM_BANK            = 8
 .label IRQH_MODE_MEM            = 9
+
 .label IRQH_JSR                 = 10
+
 .label IRQH_MODE_HIRES_BITMAP   = 11
 .label IRQH_MODE_MULTIC_BITMAP  = 12
 .label IRQH_MODE_HIRES_TEXT     = 13
 .label IRQH_MODE_MULTIC_TEXT    = 14
 .label IRQH_MODE_EXTENDED_TEXT  = 15
+
+.label IRQH_FULL_RASTER_BAR     = 16
 
 .label IRQH_CTRL_RASTER8        = %10000000
 .label IRQH_SKIP                = $00
@@ -47,6 +52,11 @@
 
 /*
  * Stabilizes interrupt.
+ *
+ * Params:
+ * secondIrqHandler - to be called after stabilizing
+ * commonEnd - to preserve memory, this is common end of stabilization procedure
+ * preserveA - preserve accumulator value or nots
  */
 .macro stabilize(secondIrqHandler, commonEnd, preserveA) {
   .if(preserveA) tax 
@@ -443,6 +453,37 @@ irqHandlers:
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
     #endif
+  irqh16: {                     // FULL Color raster bar (bar definition ptr lo | bar definition ptr hi)
+    #if IRQH_FULL_RASTER_BAR
+      stabilize(irqh16Stabilized, commonEnd, false)
+    irqh16Stabilized:
+      txs
+      cycleDelay(3)
+      nop
+      lda (listStart), y
+      sta rasterList + 1
+      iny
+      lda (listStart), y
+      sta rasterList + 2
+      ldx #0
+      sty listPtr
+      
+      rasterList: lda $ffff, x  // 4(5)
+      cmp #16                   // 2
+      beq end                   // 2
+      ldy RASTER				// 4
+      compareAgain: cpy RASTER  // 4
+      beq compareAgain          // 2
+      sta BORDER_COL            // 4
+      sta BG_COL_0              // 4
+      inx						// 2
+      jmp rasterList            // 3
+    end:
+      ldy listPtr
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder2Args
+    #endif
+    }
   irqhReminder:
     iny
   irqhReminder2Args:
@@ -466,6 +507,7 @@ jumpTable:
   .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
   .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13, <irqh14, <irqh15
+  .byte <irqh16
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
