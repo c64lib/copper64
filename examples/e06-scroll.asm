@@ -15,6 +15,7 @@
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
 #import "text/text.asm"
+#import "text/scroll1x1.asm"
 #import "../copper64.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
@@ -22,6 +23,7 @@
 .label LIST_PTR = $04
 .label ANIMATION_IDX = $05
 .label BAR_DEFS_IDX = $06
+.label SCROLL_TEMP = $07 // and $08
 .label SCREEN_PTR = 1024
 
 
@@ -104,6 +106,23 @@ nextRow:
   rts
 }
 
+doScroll: {
+  pushParamW(SCREEN_PTR)
+  pushParamW(scrollText)
+  pushParamWInd(scrollPtr)
+  jsr scroll
+  
+  pushParamW(scrollPtr)
+  pushParamW(SCREEN_PTR + 44)
+  jsr outHex
+  
+  pushParamW(scrollPtr + 1)
+  pushParamW(SCREEN_PTR + 42)
+  jsr outHex
+  
+  rts
+}
+
 copper: {
   initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
 }
@@ -112,14 +131,21 @@ copper: {
 sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
 .align $100
 copperList:
-  copperEntry(96, c64lib.IRQH_HSCROLL, 5, 0)
+  hscroll: copperEntry(96, c64lib.IRQH_HSCROLL, 5, 0)
   copperEntry(105, c64lib.IRQH_HSCROLL, 0, 0)
+  copperEntry(120, c64lib.IRQH_JSR, <doScroll, >doScroll)
   copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR
 outHex:     outHex()
+scroll:     scroll1x1(SCROLL_TEMP)
+scrollText: .text "hello world i'm jan b. this is my first scroll on c64 so please be polite. i just want to check that it is working"
+            .byte $ff
+            .print "scrollText: " + toHexString(scrollText)
+scrollPtr:  .word scrollText
+            .print "scrollPtr: "  + toHexString(scrollPtr)
 
 *=music.location "Music"
 .fill music.size, music.getData(i)
