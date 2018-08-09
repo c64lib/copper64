@@ -27,16 +27,7 @@
 .label SCREEN_PTR = 1024
 
 
-.var music = LoadSid("Noisy_Pillars_tune_1.sid")
-.print "SID Music details"
-.print "-----------------"
-.print "name: " + music.name
-.print "author: " + music.author
-.print "location: $" + toHexString(music.location)
-.print "size: $" + toHexString(music.size)
-.print "init: $" + toHexString(music.init)
-.print "play: $" + toHexString(music.play)
-.print "start song: " + music.startSong
+//.var music = LoadSid("Noisy_Pillars_tune_1.sid")
 
 *=$0801 "Basic Upstart"
 BasicUpstart(start) // Basic start routine
@@ -47,7 +38,7 @@ BasicUpstart(start) // Basic start routine
 start:
 
   jsr drawMarks
-  jsr initSound
+//  jsr initSound
 
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
@@ -75,20 +66,21 @@ block:
   lda $ff
   lda $ffff
   jmp block
+  /*
 playMusic: {
   inc c64lib.BORDER_COL
   jsr music.play
   dec c64lib.BORDER_COL
   rts
-}
-
+}*/
+/*
 initSound: {
   ldx #0
   ldy #0
   lda #music.startSong-1
   jsr music.init
   rts
-}
+}*/
 
 drawMarks: {
   lda #$00
@@ -111,6 +103,7 @@ doScroll: {
   pushParamW(scrollText)
   pushParamWInd(scrollPtr)
   jsr scroll
+  pullParamW(scrollPtr)
   
   pushParamW(scrollPtr)
   pushParamW(SCREEN_PTR + 44)
@@ -120,6 +113,13 @@ doScroll: {
   pushParamW(SCREEN_PTR + 42)
   jsr outHex
   
+  pushParamWInd(SCROLL_TEMP)
+  pushParamW(SCREEN_PTR + 84)
+  jsr outHex
+  
+  pushParamWInd(SCROLL_TEMP + 1)
+  pushParamW(SCREEN_PTR + 82)
+  jsr outHex
   rts
 }
 
@@ -134,18 +134,18 @@ copperList:
   hscroll: copperEntry(96, c64lib.IRQH_HSCROLL, 5, 0)
   copperEntry(105, c64lib.IRQH_HSCROLL, 0, 0)
   copperEntry(120, c64lib.IRQH_JSR, <doScroll, >doScroll)
-  copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
+  //copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR
 outHex:     outHex()
 scroll:     scroll1x1(SCROLL_TEMP)
-scrollText: .text "hello world i'm jan b. this is my first scroll on c64 so please be polite. i just want to check that it is working"
+scrollText: .text "hello world i'm jan b. this is my first scroll on c64 so please be polite. i just want to check that it is working                              "
             .byte $ff
             .print "scrollText: " + toHexString(scrollText)
 scrollPtr:  .word scrollText
             .print "scrollPtr: "  + toHexString(scrollPtr)
 
-*=music.location "Music"
-.fill music.size, music.getData(i)
+//*=music.location "Music"
+//.fill music.size, music.getData(i)
