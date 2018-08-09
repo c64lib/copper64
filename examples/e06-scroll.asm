@@ -24,6 +24,7 @@
 .label ANIMATION_IDX = $05
 .label BAR_DEFS_IDX = $06
 .label SCROLL_TEMP = $07 // and $08
+.label SCROLL_OFFSET = $09
 .label SCREEN_PTR = 1024
 
 
@@ -53,6 +54,7 @@ start:
   lda #00
   sta ANIMATION_IDX
   sta BAR_DEFS_IDX
+  sta SCROLL_OFFSET
 
   // initialize copper64 routine
   jsr copper
@@ -99,27 +101,23 @@ nextRow:
 }
 
 doScroll: {
+  lda SCROLL_OFFSET
+  cmp #$00
+  bne decOffset
+  lda #7
+  sta SCROLL_OFFSET
   pushParamW(SCREEN_PTR)
   pushParamW(scrollText)
   pushParamWInd(scrollPtr)
   jsr scroll
   pullParamW(scrollPtr)
-  
-  pushParamW(scrollPtr)
-  pushParamW(SCREEN_PTR + 44)
-  jsr outHex
-  
-  pushParamW(scrollPtr + 1)
-  pushParamW(SCREEN_PTR + 42)
-  jsr outHex
-  
-  pushParamWInd(SCROLL_TEMP)
-  pushParamW(SCREEN_PTR + 84)
-  jsr outHex
-  
-  pushParamWInd(SCROLL_TEMP + 1)
-  pushParamW(SCREEN_PTR + 82)
-  jsr outHex
+  jmp fineScroll
+decOffset:
+  sbc #1
+  sta SCROLL_OFFSET
+fineScroll:
+  lda SCROLL_OFFSET
+  sta hscroll + 2
   rts
 }
 
@@ -131,8 +129,8 @@ copper: {
 sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
 .align $100
 copperList:
-  hscroll: copperEntry(96, c64lib.IRQH_HSCROLL, 5, 0)
-  copperEntry(105, c64lib.IRQH_HSCROLL, 0, 0)
+  hscroll: copperEntry(96-48, c64lib.IRQH_HSCROLL, 5, 0)
+  copperEntry(105-48, c64lib.IRQH_HSCROLL, 0, 0)
   copperEntry(120, c64lib.IRQH_JSR, <doScroll, >doScroll)
   //copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
