@@ -47,6 +47,8 @@
 .label IRQH_FULL_RASTER_BAR     = 16
 .label IRQH_BG_RASTER_BAR       = 17
 
+.label IRQH_HSCROLL             = 18
+
 .label IRQH_CTRL_RASTER8        = %10000000
 .label IRQH_SKIP                = $00
 .label IRQH_LOOP                = $FF
@@ -467,12 +469,12 @@ irqHandlers:
       rasterList: lda $ffff, x  // 4(5)
       cmp #$ff                  // 2
       beq end                   // 2
-      ldy RASTER				// 4
+      ldy RASTER                // 4
       compareAgain: cpy RASTER  // 4
       beq compareAgain          // 2
       sta BORDER_COL            // 4 (fully stable if commented out)
       sta BG_COL_0              // 4
-      inx						// 2
+      inx                       // 2
       jmp rasterList            // 3
     end:
       ldy listPtr
@@ -492,17 +494,30 @@ irqHandlers:
       rasterList: lda $ffff, x  // 4(5)
       cmp #$ff                  // 2
       beq end                   // 2
-      ldy RASTER				// 4
+      ldy RASTER                // 4
       compareAgain: cpy RASTER  // 4
       beq compareAgain          // 2
       sta BG_COL_0              // 4
-      inx						// 2
+      inx                       // 2
       jmp rasterList            // 3
     end:
       ldy listPtr
       jmp irqhReminder2Args
     #endif
     }
+  irqh18: {
+    #if IRQH_HSCROLL
+      stabilize(irqh18Stabilized, commonEnd, false)
+    irqh18Stabilized:
+      txs
+      lda CONTROL_2
+      and #%11111000
+      ora (listStart), y
+      sta CONTROL_2
+      setMasterIrqHandler(copperIrq)
+      jmp irqhReminder
+    #endif
+  }
   irqhReminder:
     iny
   irqhReminder2Args:
@@ -526,7 +541,7 @@ jumpTable:
   .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
   .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13, <irqh14, <irqh15
-  .byte <irqh16, <irqh17
+  .byte <irqh16, <irqh17, <irqh18
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
