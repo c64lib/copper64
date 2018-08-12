@@ -74,6 +74,18 @@ initScreen:
     sta BORDER_COL
     sta BG_COL_0
     
+    // set up color RAM
+    pushParamW(c64lib.COLOR_RAM + getTextOffset(0, SCROLL_POSITION))
+    lda #BLACK
+    ldx #40
+    jsr fillMem
+    
+    // fill scroll area with inverted spaces
+    pushParamW(SCREEN_PTR + getTextOffset(0, SCROLL_POSITION))
+    lda #($20 + 128)
+    ldx #40
+    jsr fillMem
+    
     // narrow screen to enable scrolling
     lda CONTROL_2
     and #neg(CONTROL_2_CSEL)
@@ -153,14 +165,16 @@ copperList:
 copper:     initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
 outHex:     outHex()
 scroll:     scroll1x1(SCROLL_TEMP)
+fillMem:    .namespace c64lib { _fillMem() }
 
 // variables
 counterPtr:   .byte 0
 screenPtr:    .word SCREEN_PTR
-scrollText:   .text "hello world i'm jan b. this is my first scroll on c64 so please be polite. i just want to check that it is working                              "
+scrollText:   incText("hello world i'm jan b. this is my first scroll on c64 so please be polite. ", 128) 
+              incText("i just want to check that it is working.                              ", 128)
               .byte $ff
 scrollPtr:    .word scrollText
-scrollBarDef: .byte GREY, LIGHT_GREY, WHITE, WHITE, WHITE, LIGHT_GREY, GREY, BLACK, $ff
+scrollBarDef: .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, BLACK, $ff
 
 //*=music.location "Music"
 //.fill music.size, music.getData(i)
