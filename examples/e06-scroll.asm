@@ -27,17 +27,22 @@
 .label BAR_DEFS_IDX = $06
 .label SCROLL_TEMP = $07 // and $08
 .label SCROLL_OFFSET = $09
+.label CYCLE_CNTR = $0A
 
 // constants
 .label SCREEN_PTR = 1024
+
+.label CREDITS_POSITION = 10
+.label CREDITS_COLOR_BARS_LINE = CREDITS_POSITION * 8 + $33 - 3
+
 .label SCROLL_POSITION = 20
 .label SCROLL_POSITION_OFFSET = 20*40
 .label SCROLL_COLOR_BARS_LINE = SCROLL_POSITION * 8 + $33 - 2
 .label SCROLL_HSCROLL_LINE_START = SCROLL_COLOR_BARS_LINE - 5 
-.label SCROLL_HSCROLL_LINE_END = SCROLL_HSCROLL_LINE_START + 10 * 8 
+.label SCROLL_HSCROLL_LINE_END = SCROLL_HSCROLL_LINE_START + 10 + 8 
 
 
-//.var music = LoadSid("Noisy_Pillars_tune_1.sid")
+.var music = LoadSid("Noisy_Pillars_tune_1.sid")
 
 *=$0801 "Basic Upstart"
 BasicUpstart(start) // Basic start routine
@@ -47,7 +52,7 @@ BasicUpstart(start) // Basic start routine
 
 start:
 
-//  jsr initSound
+  jsr initSound
 
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
@@ -60,6 +65,7 @@ start:
   lda #00
   sta ANIMATION_IDX
   sta BAR_DEFS_IDX
+  sta CYCLE_CNTR
 
   // initialize copper64 routine
   jsr copper
@@ -74,6 +80,19 @@ initScreen:
     sta BORDER_COL
     sta BG_COL_0
     
+    // -- credits --
+    pushParamW(creditsText1)
+    pushParamW(SCREEN_PTR + getTextOffset(0, CREDITS_POSITION))
+    jsr outText
+    pushParamW(creditsText2)
+    pushParamW(SCREEN_PTR + getTextOffset(0, CREDITS_POSITION + 1))
+    jsr outText
+    pushParamW(c64lib.COLOR_RAM + getTextOffset(0, CREDITS_POSITION))
+    lda #BLACK
+    ldx #80
+    jsr fillMem
+    
+    // -- scroll --
     // set up color RAM
     pushParamW(c64lib.COLOR_RAM + getTextOffset(0, SCROLL_POSITION))
     lda #BLACK
@@ -110,23 +129,24 @@ initScroll: {
   rts  
 }
 
-  /*
+  
 playMusic: {
   inc c64lib.BORDER_COL
   jsr music.play
   dec c64lib.BORDER_COL
   rts
-}*/
-/*
+}
+
 initSound: {
   ldx #0
   ldy #0
   lda #music.startSong-1
   jsr music.init
   rts
-}*/
+}
 
 doScroll: {
+  inc c64lib.BORDER_COL
   lda SCROLL_OFFSET
   cmp #$00
   bne decOffset
@@ -144,6 +164,24 @@ decOffset:
 fineScroll:
   lda SCROLL_OFFSET
   sta hscroll + 2
+  dec c64lib.BORDER_COL
+  rts
+}
+
+doColorCycle: {
+  inc CYCLE_CNTR
+  lda CYCLE_CNTR
+  cmp #4
+  beq doCycle
+  rts
+doCycle:
+  inc c64lib.BORDER_COL
+  lda #0
+  sta CYCLE_CNTR
+  pushParamW(colorCycleDef + 1)
+  ldx #12
+  jsr rotateMemRight
+  dec c64lib.BORDER_COL
   rts
 }
 
@@ -154,27 +192,33 @@ sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
 .align $100
 copperList:
   copperEntry(0, c64lib.IRQH_JSR, <doScroll, >doScroll)
+  copperEntry(25, c64lib.IRQH_JSR, <doColorCycle, >doColorCycle)
+  copperEntry(CREDITS_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
   hscroll: copperEntry(SCROLL_HSCROLL_LINE_START, c64lib.IRQH_HSCROLL, 5, 0)
   copperEntry(SCROLL_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <scrollBarDef, >scrollBarDef)
   copperEntry(SCROLL_HSCROLL_LINE_END, c64lib.IRQH_HSCROLL, 0, 0)
 
-  //copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
+  copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 
 // library hosted functions
-copper:     initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
-outHex:     outHex()
-scroll:     scroll1x1(SCROLL_TEMP)
-fillMem:    .namespace c64lib { _fillMem() }
+copper:         initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
+outHex:         outHex()
+outText:        outText()
+scroll:         scroll1x1(SCROLL_TEMP)
+fillMem:        .namespace c64lib { _fillMem() }
+rotateMemRight: .namespace c64lib { _rotateMemRight() }
 
 // variables
-counterPtr:   .byte 0
-screenPtr:    .word SCREEN_PTR
-scrollText:   incText("hello world i'm jan b. this is my first scroll on c64 so please be polite. ", 128) 
-              incText("i just want to check that it is working.                              ", 128)
-              .byte $ff
-scrollPtr:    .word scrollText
-scrollBarDef: .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, BLACK, $ff
+screenPtr:      .word SCREEN_PTR
+scrollText:     incText("hello world i'm jan b. this is my first scroll on c64 so please be polite. ", 128) 
+                incText("i just want to check that it is working.                              ", 128)
+                .byte $ff
+creditsText1:   incText("        code by maciej malecki         ", 128); .byte $ff
+creditsText2:   incText("       music by jeroen tel             ", 128); .byte $ff                
+scrollPtr:      .word scrollText
+scrollBarDef:   .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, BLACK, $ff
+colorCycleDef:  .byte BLACK, RED, BROWN, RED, LIGHT_RED, YELLOW, WHITE, LIGHT_RED, RED, BROWN, LIGHT_RED, YELLOW, WHITE, YELLOW, BLACK, $FF
 
-//*=music.location "Music"
-//.fill music.size, music.getData(i)
+*=music.location "Music"
+.fill music.size, music.getData(i)
