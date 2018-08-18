@@ -32,11 +32,11 @@
 // constants
 .label SCREEN_PTR = 1024
 
-.label CREDITS_POSITION = 10
+.label CREDITS_POSITION = 16
 .label CREDITS_COLOR_BARS_LINE = CREDITS_POSITION * 8 + $33 - 3
 
-.label SCROLL_POSITION = 20
-.label SCROLL_POSITION_OFFSET = 20*40
+.label SCROLL_POSITION = 23
+.label SCROLL_POSITION_OFFSET = SCROLL_POSITION * 40
 .label SCROLL_COLOR_BARS_LINE = SCROLL_POSITION * 8 + $33 - 2
 .label SCROLL_HSCROLL_LINE_START = SCROLL_COLOR_BARS_LINE - 5 
 .label SCROLL_HSCROLL_LINE_END = SCROLL_HSCROLL_LINE_START + 10 + 8 
@@ -80,31 +80,24 @@ initScreen:
     sta BORDER_COL
     sta BG_COL_0
     
+    // clear screen
+    pushParamW(SCREEN_PTR)
+    lda #($20 + 128)
+    jsr fillScreen
+    pushParamW(COLOR_RAM)
+    lda #BLACK
+    jsr fillScreen
+    
     // -- credits --
     pushParamW(creditsText1)
     pushParamW(SCREEN_PTR + getTextOffset(0, CREDITS_POSITION))
     jsr outText
     pushParamW(creditsText2)
-    pushParamW(SCREEN_PTR + getTextOffset(0, CREDITS_POSITION + 1))
+    pushParamW(SCREEN_PTR + getTextOffset(0, CREDITS_POSITION + 2))
     jsr outText
-    pushParamW(c64lib.COLOR_RAM + getTextOffset(0, CREDITS_POSITION))
-    lda #BLACK
-    ldx #80
-    jsr fillMem
     
     // -- scroll --
-    // set up color RAM
-    pushParamW(c64lib.COLOR_RAM + getTextOffset(0, SCROLL_POSITION))
-    lda #BLACK
-    ldx #40
-    jsr fillMem
-    
-    // fill scroll area with inverted spaces
-    pushParamW(SCREEN_PTR + getTextOffset(0, SCROLL_POSITION))
-    lda #($20 + 128)
-    ldx #40
-    jsr fillMem
-    
+       
     // narrow screen to enable scrolling
     lda CONTROL_2
     and #neg(CONTROL_2_CSEL)
@@ -179,7 +172,7 @@ doCycle:
   lda #0
   sta CYCLE_CNTR
   pushParamW(colorCycleDef + 1)
-  ldx #12
+  ldx #6
   jsr rotateMemRight
   dec c64lib.BORDER_COL
   rts
@@ -194,6 +187,7 @@ copperList:
   copperEntry(0, c64lib.IRQH_JSR, <doScroll, >doScroll)
   copperEntry(25, c64lib.IRQH_JSR, <doColorCycle, >doColorCycle)
   copperEntry(CREDITS_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
+  copperEntry(CREDITS_COLOR_BARS_LINE + 16, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
   hscroll: copperEntry(SCROLL_HSCROLL_LINE_START, c64lib.IRQH_HSCROLL, 5, 0)
   copperEntry(SCROLL_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <scrollBarDef, >scrollBarDef)
   copperEntry(SCROLL_HSCROLL_LINE_END, c64lib.IRQH_HSCROLL, 0, 0)
@@ -208,17 +202,18 @@ outText:        outText()
 scroll:         scroll1x1(SCROLL_TEMP)
 fillMem:        .namespace c64lib { _fillMem() }
 rotateMemRight: .namespace c64lib { _rotateMemRight() }
+fillScreen:     .namespace c64lib { _fillScreen() }
 
 // variables
 screenPtr:      .word SCREEN_PTR
 scrollText:     incText("hello world i'm jan b. this is my first scroll on c64 so please be polite. ", 128) 
                 incText("i just want to check that it is working.                              ", 128)
                 .byte $ff
-creditsText1:   incText("        code by maciej malecki         ", 128); .byte $ff
-creditsText2:   incText("       music by jeroen tel             ", 128); .byte $ff                
+creditsText1:   incText("        code by maciej malecki", 128); .byte $ff
+creditsText2:   incText("       music by jeroen tel", 128); .byte $ff                
 scrollPtr:      .word scrollText
 scrollBarDef:   .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, BLACK, $ff
-colorCycleDef:  .byte BLACK, RED, BROWN, RED, LIGHT_RED, YELLOW, WHITE, LIGHT_RED, RED, BROWN, LIGHT_RED, YELLOW, WHITE, YELLOW, BLACK, $FF
+colorCycleDef:  .byte BLACK, RED, RED, BROWN, RED, LIGHT_RED, YELLOW, WHITE, BLACK, $ff
 
 *=music.location "Music"
 .fill music.size, music.getData(i)
