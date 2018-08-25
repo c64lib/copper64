@@ -230,12 +230,12 @@ fillScreen:     .namespace c64lib { _fillScreen() }
 // variables
 screenPtr:      .word SCREEN_PTR
 scrollText:     incText(
-					"  3...      2...     1...   go!        "
-					+"hi folks! this simple intro has been written to demonstrate capabilities of copper64 library "
-					+"which is a part of c64lib project. there's little tech tech animation of ascii logo, some old shool "
-					+"font effect and lame 1x1 scroll that you're reading right now. c64lib is freely available on "
-					+"https://github.com/c64lib     that's all for now, i don't have any more ideas for this text.                 ", 
-					128) 
+                    "  3...      2...     1...   go!        "
+                    +"hi folks! this simple intro has been written to demonstrate capabilities of copper64 library "
+                    +"which is a part of c64lib project. there's little tech tech animation of ascii logo, some old shool "
+                    +"font effect and lame 1x1 scroll that you're reading right now. c64lib is freely available on "
+                    +"https://github.com/c64lib     that's all for now, i don't have any more ideas for this text.                 ", 
+                    128) 
                 .byte $ff
 creditsText1:   incText("           code by  thevoid", 128); .byte $ff
 creditsText2:   incText("          music by  jeroen tel", 128); .byte $ff                
