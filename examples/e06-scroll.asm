@@ -9,9 +9,11 @@
  * GIT repo:  https://github.com/c64lib/copper64
  */
  
+// #define VISUAL_DEBUG
 #define IRQH_BG_RASTER_BAR
 #define IRQH_HSCROLL
 #define IRQH_JSR
+#define IRQH_HSCROLL_MAP
 
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
@@ -31,6 +33,10 @@
 
 // constants
 .label SCREEN_PTR = 1024
+
+.label LOGO_POSITION = 4
+.label LOGO_LINE = LOGO_POSITION * 8 + $33 - 4
+.label TECH_TECH_WIDTH = 5*8
 
 .label CREDITS_POSITION = 16
 .label CREDITS_COLOR_BARS_LINE = CREDITS_POSITION * 8 + $33 - 3
@@ -88,6 +94,16 @@ initScreen:
     lda #BLACK
     jsr fillScreen
     
+    // tech tech logo
+    pushParamW(logoLine1)
+    pushParamW(SCREEN_PTR + getTextOffset(0, LOGO_POSITION))
+    jsr outText
+    
+    pushParamW(COLOR_RAM + getTextOffset(0, LOGO_POSITION))
+    ldx #(5*40)
+    lda #WHITE
+    jsr fillMem
+    
     // -- credits --
     pushParamW(creditsText1)
     pushParamW(SCREEN_PTR + getTextOffset(0, CREDITS_POSITION))
@@ -124,9 +140,9 @@ initScroll: {
 
   
 playMusic: {
-  inc c64lib.BORDER_COL
+  debugBorderStart()
   jsr music.play
-  dec c64lib.BORDER_COL
+  debugBorderEnd()
   rts
 }
 
@@ -139,7 +155,7 @@ initSound: {
 }
 
 doScroll: {
-  inc c64lib.BORDER_COL
+  debugBorderStart()
   lda SCROLL_OFFSET
   cmp #$00
   bne decOffset
@@ -157,24 +173,30 @@ decOffset:
 fineScroll:
   lda SCROLL_OFFSET
   sta hscroll + 2
-  dec c64lib.BORDER_COL
+  debugBorderEnd()
   rts
 }
 
 doColorCycle: {
+  debugBorderStart()
+  // tech tech
+  pushParamW(hscrollMapDef)
+  ldx #(TECH_TECH_WIDTH-1)
+  jsr rotateMemRight
+
   inc CYCLE_CNTR
   lda CYCLE_CNTR
   cmp #4
   beq doCycle
+  debugBorderEnd()
   rts
 doCycle:
-  inc c64lib.BORDER_COL
   lda #0
   sta CYCLE_CNTR
   pushParamW(colorCycleDef + 1)
   ldx #6
   jsr rotateMemRight
-  dec c64lib.BORDER_COL
+  debugBorderEnd()
   rts
 }
 
@@ -186,6 +208,7 @@ sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
 copperList:
   copperEntry(0, c64lib.IRQH_JSR, <doScroll, >doScroll)
   copperEntry(25, c64lib.IRQH_JSR, <doColorCycle, >doColorCycle)
+  copperEntry(LOGO_LINE, c64lib.IRQH_HSCROLL_MAP, <hscrollMapDef, >hscrollMapDef)
   copperEntry(CREDITS_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
   copperEntry(CREDITS_COLOR_BARS_LINE + 16, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
   hscroll: copperEntry(SCROLL_HSCROLL_LINE_START, c64lib.IRQH_HSCROLL, 5, 0)
@@ -206,14 +229,25 @@ fillScreen:     .namespace c64lib { _fillScreen() }
 
 // variables
 screenPtr:      .word SCREEN_PTR
-scrollText:     incText("hello world i'm jan b. this is my first scroll on c64 so please be polite. ", 128) 
-                incText("i just want to check that it is working.                              ", 128)
+scrollText:     incText(
+					"  3...      2...     1...   go!        "
+					+"hi folks! this simple intro has been written to demonstrate capabilities of copper64 library "
+					+"which is a part of c64lib project. there's little tech tech animation of ascii logo, some old shool "
+					+"font effect and lame 1x1 scroll that you're reading right now. c64lib is freely available on "
+					+"https://github.com/c64lib     that's all for now, i don't have any more ideas for this text.                 ", 
+					128) 
                 .byte $ff
-creditsText1:   incText("        code by maciej malecki", 128); .byte $ff
-creditsText2:   incText("       music by jeroen tel", 128); .byte $ff                
+creditsText1:   incText("           code by  thevoid", 128); .byte $ff
+creditsText2:   incText("          music by  jeroen tel", 128); .byte $ff                
+logoLine1:      .text " ---===--- ---===--- ---===--- ---===-  "
+                .text " ccc 666 4 4 l   i bbb ddd eee mmm ooo  "
+                .text " c   6 6 444 l   i b b d d e   m m o o  "
+                .text " ccc 666   4 lll i bbb ddd eee m m ooo  "
+                .text " -===--- ---===--- ---===--- ---===---  "; .byte $ff            
 scrollPtr:      .word scrollText
-scrollBarDef:   .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, BLACK, $ff
+scrollBarDef:   .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
 colorCycleDef:  .byte BLACK, RED, RED, BROWN, RED, LIGHT_RED, YELLOW, WHITE, BLACK, $ff
+hscrollMapDef:  .fill TECH_TECH_WIDTH, round(3.5 + 3.5*sin(toRadians(i*360/TECH_TECH_WIDTH))) ; .byte 0; .byte $ff
 
 *=music.location "Music"
 .fill music.size, music.getData(i)
