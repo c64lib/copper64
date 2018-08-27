@@ -167,13 +167,24 @@
   copperEntry(0, IRQH_LOOP, 0, 0)
 }
 
+// Hosted subroutines
+
 /*
+ * Initializes copper64 and installs IRQ handler at first position from copper list. This macro defines
+ * hosted subroutine and as such can be then called many times. It is handy, when one need to disable
+ * copper functionality and then relaunch it again. Once called again, display list pointer is reset to 0.
+ *
+ * This is handy when one need to change display list (for next demo part for instance, or from game title 
+ * screen to in-game screen). To achieve this one needs to stop copper by launching hosted subroutine 
+ * _stopCopper, change copper list address specified by listStart (zero page) and relaunch by calling
+ * _startCopper again.
+ *
  * Requires 4 bytes on zero page: 2 subsequent for listStart, 1 byte for list pointer (Y)
  *
  * listStart - begin address of display list stored on zero page
  * listPtr - address for Y reg storage
  */
-.macro @initCopper(listStart, listPtr) {
+.macro _startCopper(listStart, listPtr) {
   // here we do initialize and install first interrupt handler
   lda #$00
   sta listPtr
@@ -576,4 +587,14 @@ jumpTable:
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
+}
+
+/*
+ * Stops copper. It actually disables VIC-II interrupt, display list start pointer and list pointer value
+ * are left unchanged.
+ */
+.macro _stopCopper() {
+	lda #0
+	sta IRR
+	rts
 }

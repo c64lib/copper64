@@ -74,7 +74,7 @@ start:
   sta CYCLE_CNTR
 
   // initialize copper64 routine
-  jsr copper
+  jsr startCopper
 block:
   jmp block
   
@@ -219,10 +219,10 @@ copperList:
   copperLoop()
 
 // library hosted functions
-copper:         initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
-outHex:         outHex()
-outText:        outText()
-scroll:         scroll1x1(SCROLL_TEMP)
+startCopper:    .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+outHex:         .namespace c64lib { _outHex() }
+outText:        .namespace c64lib { _outText() }
+scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
 fillMem:        .namespace c64lib { _fillMem() }
 rotateMemRight: .namespace c64lib { _rotateMemRight() }
 fillScreen:     .namespace c64lib { _fillScreen() }
@@ -230,15 +230,15 @@ fillScreen:     .namespace c64lib { _fillScreen() }
 // variables
 screenPtr:      .word SCREEN_PTR
 scrollText:     incText(
-                    "  3...      2...     1...   go!        "
+                    "  3...      2...      1...      go!      "
                     +"hi folks! this simple intro has been written to demonstrate capabilities of copper64 library "
                     +"which is a part of c64lib project. there's little tech tech animation of ascii logo, some old shool "
                     +"font effect and lame 1x1 scroll that you're reading right now. c64lib is freely available on "
                     +"https://github.com/c64lib     that's all for now, i don't have any more ideas for this text.                 ", 
                     128) 
                 .byte $ff
-creditsText1:   incText("           code by  thevoid", 128); .byte $ff
-creditsText2:   incText("          music by  jeroen tel", 128); .byte $ff                
+creditsText1:   incText("          code by  maciek malecki", 128); .byte $ff
+creditsText2:   incText("         music by  jeroen tel", 128); .byte $ff                
 logoLine1:      .text " ---===--- ---===--- ---===--- ---===-  "
                 .text " ccc 666 4 4 l   i bbb ddd eee mmm ooo  "
                 .text " c   6 6 444 l   i b b d d e   m m o o  "

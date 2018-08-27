@@ -24,18 +24,6 @@
 .label BAR_DEFS_IDX = $06
 .label SCREEN_PTR = 1024
 
-
-.var music = LoadSid("Noisy_Pillars_tune_1.sid")
-.print "SID Music details"
-.print "-----------------"
-.print "name: " + music.name
-.print "author: " + music.author
-.print "location: $" + toHexString(music.location)
-.print "size: $" + toHexString(music.size)
-.print "init: $" + toHexString(music.init)
-.print "play: $" + toHexString(music.play)
-.print "start song: " + music.startSong
-
 *=$0801 "Basic Upstart"
 BasicUpstart(start) // Basic start routine
 
@@ -45,8 +33,6 @@ BasicUpstart(start) // Basic start routine
 start:
 
   jsr drawMarks
-  jsr initSound
-
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
   configureMemory(c64lib.RAM_IO_RAM)
@@ -62,7 +48,7 @@ start:
   sta BAR_DEFS_IDX
 
   // initialize copper64 routine
-  jsr copper
+  jsr startCopper
 block:
   nop
   lda $ff00
@@ -73,12 +59,7 @@ block:
   lda $ff
   lda $ffff
   jmp block
-playMusic: {
-  inc c64lib.BORDER_COL
-  jsr music.play
-  dec c64lib.BORDER_COL
-  rts
-}
+
 animateBar: {
   inc c64lib.BORDER_COL
   ldx ANIMATION_IDX
@@ -106,14 +87,6 @@ skipDefs:
   rts
 }
 
-initSound: {
-  ldx #0
-  ldy #0
-  lda #music.startSong-1
-  jsr music.init
-  rts
-}
-
 drawMarks: {
   lda #$00
   sta counterPtr
@@ -130,9 +103,8 @@ nextRow:
   rts
 }
 
-copper: {
-  initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
-}
+startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+outHex:     .namespace c64lib { _outHex() }
 
 .align $100
 sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
@@ -140,16 +112,11 @@ sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
 copperList:
   copperEntry(1, c64lib.IRQH_JSR, <animateBar, >animateBar)
   rasterIrqh: copperEntry(102, c64lib.IRQH_BG_RASTER_BAR, <barDef1, >barDef1)
-  copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR
-outHex:     outHex()
 barDef1:    .byte 	$1, $f, $f, $c, $c, $c, $c, $c, $c, $c, $c, $b, $b, $0, BLUE, $ff
 barDef2:    .byte 	$1, $2, $a, $2, $a, $a, $a, $a, $5, $d, $5, $d, $5, $d, BLUE, $ff
 barDef3:    .byte 	$1, $2, $8, $2, $8, $a, $8, $a, $8, $a, $8, $2, $8, $2, BLUE, $ff
 barDefs:    .word	barDef1, barDef2, barDef3, $ffff
-
-*=music.location "Music"
-.fill music.size, music.getData(i)

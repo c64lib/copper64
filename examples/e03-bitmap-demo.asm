@@ -32,17 +32,6 @@
 .label TEXT_SCREEN_BANK = 9
 .label TEXT_CHARSET_BANK = 5
 
-.var music = LoadSid("Noisy_Pillars_tune_1.sid")
-.print "SID Music details"
-.print "-----------------"
-.print "name: " + music.name
-.print "author: " + music.author
-.print "location: $" + toHexString(music.location)
-.print "size: $" + toHexString(music.size)
-.print "init: $" + toHexString(music.init)
-.print "play: $" + toHexString(music.play)
-.print "start song: " + music.startSong
-
 .var gfxTemplate = "Header=0,Bitmap=2,Screen=8002"
 .var gfx  = LoadBinary("frog.art", gfxTemplate)
 
@@ -57,12 +46,10 @@ start:
   lda #DELAY
   sta ANIMATION_DELAY_COUNTER
 
-  // initialize sound  
-  ldx #0
-  ldy #0
-  lda #music.startSong-1
-  jsr music.init
-  jsr fillColorMem
+  pushParamW(c64lib.COLOR_RAM)
+  lda #LIGHT_GREY
+  jsr fillScreen
+
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
   
   lda #BLUE
@@ -70,15 +57,9 @@ start:
   lda #BLACK
   sta c64lib.BORDER_COL
   
+  pushParamW($6400)
   lda #$01
-  ldy #$00
-fillText:
-  sta $6400,y
-  sta $6500,y
-  sta $6600,y
-  sta $6700,y
-  iny
-  bne fillText
+  jsr fillScreen
   
   setVICBank(%10)
   configureMemory(c64lib.RAM_IO_RAM)
@@ -92,7 +73,7 @@ fillText:
   sta DISPLAY_LIST_PTR_HI
 
   // initialize copper64 routine
-  jsr copper
+  jsr startCopper
 block:
   nop
   lda $ff00
@@ -103,24 +84,7 @@ block:
   lda $ff
   lda $ffff
   jmp block
-playMusic: {
-  inc c64lib.BORDER_COL
-  jsr music.play
-  dec c64lib.BORDER_COL
-  rts
-}
-fillColorMem: {
-  lda #LIGHT_GRAY
-  ldx #0
-loop:
-  sta c64lib.COLOR_RAM, x
-  sta c64lib.COLOR_RAM + $100, x
-  sta c64lib.COLOR_RAM + $200, x
-  sta c64lib.COLOR_RAM + $300, x
-  inx
-  bne loop
-  rts
-}
+
 animateCharset: {
   debugBorderStart()
   dec ANIMATION_DELAY_COUNTER
@@ -152,9 +116,8 @@ next:
   rts
 }
 
-copper: {
-  initCopper(DISPLAY_LIST_PTR_LO, LIST_PTR)
-}
+startCopper:    .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+fillScreen:     .namespace c64lib { _fillScreen() }
 
 .align $100
 copperList: {
@@ -165,15 +128,8 @@ copperList: {
   copperEntry(193, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
   copperEntry(241, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
   copperEntry(246, c64lib.IRQH_BG_COL_0, GREY, 0)
-  copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
   copperLoop()
 }
-
-hexChars:
-	.text "0123456789abcdef"
-  
-*=music.location "Music"
-.fill music.size, music.getData(i)
 
 *=$4000 "Bitmap"
   .fill gfx.getBitmapSize(), gfx.getBitmap(i)

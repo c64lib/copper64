@@ -9,4 +9,4 @@
 #import "copper64.asm"
 
 
-initCopper($f0, $f2)
+.namespace c64lib { _startCopper($f0, $f2) }
