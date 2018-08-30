@@ -17,6 +17,7 @@
 
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
+#import "chipset/cia.asm"
 #import "text/text.asm"
 #import "text/scroll1x1.asm"
 #import "../copper64.asm"
@@ -54,20 +55,26 @@
 BasicUpstart(start) // Basic start routine
 
 // Main program
-*=$3000 "Program"
+*=$080d "Program"
 
 start:
-
+  sei
+  .namespace c64lib {
+    // reconfigure C64 memory
+    configureMemory(RAM_IO_RAM)
+    // disable NMI interrupt in a lame way
+    disableNMI()
+    // disable CIA as interrupt sources
+    disableCIAInterrupts()
+  }
+  cli
+  
   jsr initSound
-
-  sei                                   // I don't care of calling cli later, copper initialization does it anyway
-  
-  configureMemory(c64lib.RAM_IO_RAM)
-  
   jsr initScreen
   jsr initCopper
   jsr initScroll
-  
+
+  // initialize internal data structures  
   lda #00
   sta ANIMATION_IDX
   sta BAR_DEFS_IDX
@@ -76,6 +83,7 @@ start:
   // initialize copper64 routine
   jsr startCopper
 block:
+  // go to infinite loop, rest will be done in interrupts
   jmp block
   
 initScreen: 
@@ -137,7 +145,6 @@ initScroll: {
   sta SCROLL_OFFSET
   rts  
 }
-
   
 playMusic: {
   debugBorderStart()
@@ -179,11 +186,13 @@ fineScroll:
 
 doColorCycle: {
   debugBorderStart()
+  
   // tech tech
   pushParamW(hscrollMapDef)
   ldx #(TECH_TECH_WIDTH-1)
   jsr rotateMemRight
-
+  
+  // font effects via raster bars
   inc CYCLE_CNTR
   lda CYCLE_CNTR
   cmp #4
@@ -199,10 +208,7 @@ doCycle:
   debugBorderEnd()
   rts
 }
-
-
-.align $100
-sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
+endOfCode:
 
 .align $100
 copperList:
@@ -226,6 +232,7 @@ scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
 fillMem:        .namespace c64lib { _fillMem() }
 rotateMemRight: .namespace c64lib { _rotateMemRight() }
 fillScreen:     .namespace c64lib { _fillScreen() }
+endOfLibs:
 
 // variables
 screenPtr:      .word SCREEN_PTR
@@ -248,6 +255,15 @@ scrollPtr:      .word scrollText
 scrollBarDef:   .byte GREY, LIGHT_GREY, WHITE, WHITE, LIGHT_GREY, GREY, GREY, BLACK, $ff
 colorCycleDef:  .byte BLACK, RED, RED, BROWN, RED, LIGHT_RED, YELLOW, WHITE, BLACK, $ff
 hscrollMapDef:  .fill TECH_TECH_WIDTH, round(3.5 + 3.5*sin(toRadians(i*360/TECH_TECH_WIDTH))) ; .byte 0; .byte $ff
+endOfVars:
 
 *=music.location "Music"
 .fill music.size, music.getData(i)
+
+endOfProg:
+
+.print "End of code = " + toHexString(endOfCode)
+.print "Copper list = " + toHexString(copperList)
+.print "Size of vars = " + (endOfVars - screenPtr)
+.print "Size of libs = " + (endOfLibs - startCopper)
+.print "Size of all = " + (endOfProg - start)
