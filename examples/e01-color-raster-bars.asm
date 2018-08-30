@@ -19,6 +19,7 @@
 #import "common/mem.asm"
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
+#import "chipset/cia.asm"
 #import "text/text.asm"
 #import "../copper64.asm"
 
@@ -32,41 +33,52 @@
 BasicUpstart(start) // Basic start routine
 
 // Main program
-*=$3000 "Program"
+*=$080e "Program"
 
 start:
-
-  jsr drawMarks
-  
+ 
   sei                                   // I don't care of calling cli later, copper initialization does it anyway
+  .namespace c64lib {
+    configureMemory(RAM_IO_RAM)
+    disableNMI()
+    disableCIAInterrupts()
+  }
+  cli
   
-  configureMemory(c64lib.RAM_IO_RAM)
+  jsr drawMarks
+  jsr initCopper
+
+  // initialize copper64 routine
+  jsr startCopper
+block:
+  // go into endless loop
+  jmp block
   
+initCopper: {
   // set up address of display list
   lda #<copperList
   sta DISPLAY_LIST_PTR_LO
   lda #>copperList
   sta DISPLAY_LIST_PTR_HI
-
-  // initialize copper64 routine
-  jsr startCopper
-block:
-  nop
-  lda $ff00
-  lda $ff00,y
-  jmp block
+  rts
+}
   
 drawMarks: {
 
-  pushParamW(helloWorld); pushParamW(SCREEN_PTR + getTextOffset(10, 14)); jsr outText
+  pushParamW(helloWorld); pushParamW(SCREEN_PTR + getTextOffset(10, 14)); 
+  jsr outText
   
   lda #$00
   sta counterPtr
   
 nextRow:
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
+  pushParamW(counterPtr); pushParamWInd(screenPtr)
+  jsr outHex
+  
   add16(38, screenPtr)
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
+  pushParamW(counterPtr); pushParamWInd(screenPtr)
+  jsr outHex
+  
   add16(2, screenPtr)
   inc counterPtr
   lda counterPtr
@@ -76,8 +88,12 @@ nextRow:
 }
   
 outHex:      .namespace c64lib { _outHex() }
-outText:	 .namespace c64lib { _outText() }
+outText:	   .namespace c64lib { _outText() }
 startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+
+counterPtr: .byte 0
+screenPtr:  .word SCREEN_PTR
+helloWorld: .text "*** hello world ***"; .byte $FF
 
 .align $100
 copperList: {
@@ -95,8 +111,3 @@ copperList: {
   copperEntry(252, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
   copperLoop()
 }
-
-counterPtr: .byte 0
-screenPtr:  .word SCREEN_PTR
-helloWorld: .text "*** hello world ***" 
-			.byte $FF
