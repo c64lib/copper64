@@ -111,3 +111,6 @@ copperList: {
   copperEntry(252, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
   copperLoop()
 }
+programEnd:
+
+.print "Program size = " + (programEnd - start)
