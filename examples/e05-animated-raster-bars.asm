@@ -28,37 +28,33 @@
 BasicUpstart(start) // Basic start routine
 
 // Main program
-*=$3000 "Program"
+*=$080d "Program"
 
 start:
 
-  jsr drawMarks
-  sei                                   // I don't care of calling cli later, copper initialization does it anyway
-  
-  configureMemory(c64lib.RAM_IO_RAM)
-  
-  // set up address of display list
-  lda #<copperList
-  sta DISPLAY_LIST_PTR_LO
-  lda #>copperList
-  sta DISPLAY_LIST_PTR_HI
+  .namespace c64lib {
+    configureMemory(c64lib.RAM_IO_RAM)
+    disableNMI()
+    disableCIAInterrupts()
+  }
   
   lda #00
   sta ANIMATION_IDX
   sta BAR_DEFS_IDX
 
-  // initialize copper64 routine
+  jsr drawMarks
+  jsr initCopper
   jsr startCopper
 block:
-  nop
-  lda $ff00
-  sta $ff00
-  nop
-  nop
-  lda $ff00
-  lda $ff
-  lda $ffff
   jmp block
+
+initCopper: {
+  lda #<copperList
+  sta DISPLAY_LIST_PTR_LO
+  lda #>copperList
+  sta DISPLAY_LIST_PTR_HI
+  rts
+}
 
 animateBar: {
   inc c64lib.BORDER_COL

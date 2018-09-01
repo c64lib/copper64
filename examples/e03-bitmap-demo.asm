@@ -39,7 +39,7 @@
 BasicUpstart(start) // Basic start routine
 
 // Main program
-*=$3000 "Program"
+*=$080d "Program"
 
 start:
 
@@ -50,8 +50,6 @@ start:
   lda #LIGHT_GREY
   jsr fillScreen
 
-  sei                                   // I don't care of calling cli later, copper initialization does it anyway
-  
   lda #BLUE
   sta c64lib.BG_COL_0
   lda #BLACK
@@ -61,29 +59,29 @@ start:
   lda #$01
   jsr fillScreen
   
-  setVICBank(%10)
-  configureMemory(c64lib.RAM_IO_RAM)
-  setVideoMode(c64lib.STANDARD_BITMAP_MODE)
-  configureBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK)
+  sei
+  .namespace c64lib {
+    setVICBank(%10)
+    configureMemory(c64lib.RAM_IO_RAM)
+    setVideoMode(c64lib.STANDARD_BITMAP_MODE)
+    configureBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK)
+    disableNMI()
+    disableCIAInterrupts()
+  }
+  cli
    
-  // set up address of display list
+  jsr initCopper
+  jsr startCopper
+block:
+  jmp block
+  
+initCopper: {
   lda #<copperList
   sta DISPLAY_LIST_PTR_LO
   lda #>copperList
   sta DISPLAY_LIST_PTR_HI
-
-  // initialize copper64 routine
-  jsr startCopper
-block:
-  nop
-  lda $ff00
-  sta $ff00
-  nop
-  nop
-  lda $ff00
-  lda $ff
-  lda $ffff
-  jmp block
+  rts
+}
 
 animateCharset: {
   debugBorderStart()

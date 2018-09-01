@@ -33,11 +33,11 @@
 BasicUpstart(start) // Basic start routine
 
 // Main program
-*=$080e "Program"
+*=$080d "Program"
 
 start:
  
-  sei                                   // I don't care of calling cli later, copper initialization does it anyway
+  sei
   .namespace c64lib {
     configureMemory(RAM_IO_RAM)
     disableNMI()
