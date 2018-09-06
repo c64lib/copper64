@@ -24,6 +24,7 @@
 .label LIST_PTR = $04
 .label ANIMATE_BUFFER = $05
 .label ANIMATION_DELAY_COUNTER = $06
+.label CHARSET = $6808
 
 .label DELAY = 2
 
@@ -43,6 +44,17 @@ BasicUpstart(start) // Basic start routine
 
 start:
 
+  sei
+  .namespace c64lib {
+    setVICBank(%10)
+    configureMemory(c64lib.RAM_IO_RAM)
+    setVideoMode(c64lib.STANDARD_BITMAP_MODE)
+    configureBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK)
+    disableNMI()
+    disableCIAInterrupts()
+  }
+  cli
+
   lda #DELAY
   sta ANIMATION_DELAY_COUNTER
 
@@ -59,21 +71,35 @@ start:
   lda #$01
   jsr fillScreen
   
-  sei
-  .namespace c64lib {
-    setVICBank(%10)
-    configureMemory(c64lib.RAM_IO_RAM)
-    setVideoMode(c64lib.STANDARD_BITMAP_MODE)
-    configureBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK)
-    disableNMI()
-    disableCIAInterrupts()
-  }
-  cli
+  jsr unpack
    
   jsr initCopper
   jsr startCopper
 block:
   jmp block
+  
+unpack: {
+
+  // unpack charset
+  pushParamW(charsetPacked)
+  pushParamW($6800)
+  pushParamW(16)
+  jsr copyLargeMemForward
+  
+  // unpack screen mem
+  pushParamW(screenPacked)
+  pushParamW($6000)
+  pushParamW(gfx.getScreenSize())
+  jsr copyLargeMemForward
+  
+  // unpack bitmap
+  pushParamW(bitmapPacked)
+  pushParamW($4000)
+  pushParamW(gfx.getBitmapSize())
+  jsr copyLargeMemForward
+  
+  rts
+}
   
 initCopper: {
   lda #<copperList
@@ -114,8 +140,13 @@ next:
   rts
 }
 
-startCopper:    .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
-fillScreen:     .namespace c64lib { _fillScreen() }
+startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+fillScreen: .namespace c64lib { _fillScreen() }
+copyLargeMemForward: .namespace c64lib { _copyLargeMemForward() }
+
+.print copperList
+here:
+.print here
 
 .align $100
 copperList: {
@@ -129,15 +160,14 @@ copperList: {
   copperLoop()
 }
 
-*=$4000 "Bitmap"
-  .fill gfx.getBitmapSize(), gfx.getBitmap(i)
+.print bitmapPacked
+bitmapPacked: .fill gfx.getBitmapSize(), gfx.getBitmap(i)
   
-*=$6000 "Screen Memory"
-  .fill gfx.getScreenSize(), gfx.getScreen(i)
+.print screenPacked
+screenPacked: .fill gfx.getScreenSize(), gfx.getScreen(i)
 
-*=$6800 "Charset"
+charsetPacked:
   .byte 0, 0, 0, 0, 0, 0, 0, 0
-CHARSET:
   .byte 0
   .byte %00001110
   .byte %00011100
