@@ -20,6 +20,7 @@
 #import "chipset/cia.asm"
 #import "text/text.asm"
 #import "text/scroll1x1.asm"
+#import "common/mem.asm"
 #import "../copper64.asm"
 
 // zero page addresses
@@ -69,6 +70,7 @@ start:
   }
   cli
   
+  jsr unpack
   jsr initSound
   jsr initScreen
   jsr initCopper
@@ -208,6 +210,13 @@ doCycle:
   debugBorderEnd()
   rts
 }
+unpack: {
+  pushParamW(musicData)
+  pushParamW(music.location)
+  pushParamW(music.size)
+  jsr copyLargeMemForward
+  rts
+}
 endOfCode:
 
 .align $100
@@ -232,6 +241,7 @@ scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
 fillMem:        .namespace c64lib { _fillMem() }
 rotateMemRight: .namespace c64lib { _rotateMemRight() }
 fillScreen:     .namespace c64lib { _fillScreen() }
+copyLargeMemForward: .namespace c64lib { _copyLargeMemForward() }
 endOfLibs:
 
 // variables
@@ -257,7 +267,8 @@ colorCycleDef:  .byte BLACK, RED, RED, BROWN, RED, LIGHT_RED, YELLOW, WHITE, BLA
 hscrollMapDef:  .fill TECH_TECH_WIDTH, round(3.5 + 3.5*sin(toRadians(i*360/TECH_TECH_WIDTH))) ; .byte 0; .byte $ff
 endOfVars:
 
-*=music.location "Music"
+//*=music.location "Music"
+musicData:
 .fill music.size, music.getData(i)
 
 endOfProg:
