@@ -22,6 +22,7 @@
 #import "chipset/cia.asm"
 #import "text/text.asm"
 #import "common/math-global.asm"
+#import "common/invoke-global.asm"
 #import "../copper64.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02

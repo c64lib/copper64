@@ -20,7 +20,8 @@
 #import "chipset/cia.asm"
 #import "text/text.asm"
 #import "text/scroll1x1.asm"
-#import "common/mem.asm"
+#import "common/mem-global.asm"
+#import "common/invoke-global.asm"
 #import "../copper64.asm"
 
 // zero page addresses
