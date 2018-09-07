@@ -55,6 +55,8 @@ start:
   }
   cli
 
+  jsr unpack
+
   lda #DELAY
   sta ANIMATION_DELAY_COUNTER
 
@@ -70,9 +72,7 @@ start:
   pushParamW($6400)
   lda #$01
   jsr fillScreen
-  
-  jsr unpack
-   
+     
   jsr initCopper
   jsr startCopper
 block:
