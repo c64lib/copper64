@@ -240,9 +240,11 @@ outHex:         .namespace c64lib { _outHex() }
 outText:        .namespace c64lib { _outText() }
 scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
 fillMem:        .namespace c64lib { _fillMem() }
-#import "common/mem/rotate-mem-right.asm"
+rotateMemRight: 
+                #import "common/sub/rotate-mem-right.asm"
 fillScreen:     .namespace c64lib { _fillScreen() }
-copyLargeMemForward: .namespace c64lib { _copyLargeMemForward() }
+copyLargeMemForward: 
+                #import "common/sub/copy-large-mem-forward.asm"
 endOfLibs:
 
 // variables
