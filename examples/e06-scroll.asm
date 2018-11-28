@@ -20,8 +20,8 @@
 #import "chipset/cia.asm"
 #import "text/text.asm"
 #import "text/scroll1x1.asm"
-#import "common/mem-global.asm"
-#import "common/invoke-global.asm"
+#import "common/lib/mem-global.asm"
+#import "common/lib/invoke-global.asm"
 #import "../copper64.asm"
 
 // zero page addresses
@@ -241,10 +241,10 @@ outText:        .namespace c64lib { _outText() }
 scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
 fillMem:        .namespace c64lib { _fillMem() }
 rotateMemRight: 
-                #import "common/sub/rotate-mem-right.asm"
+                #import "common/lib/sub/rotate-mem-right.asm"
 fillScreen:     .namespace c64lib { _fillScreen() }
 copyLargeMemForward: 
-                #import "common/sub/copy-large-mem-forward.asm"
+                #import "common/lib/sub/copy-large-mem-forward.asm"
 endOfLibs:
 
 // variables

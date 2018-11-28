@@ -17,7 +17,7 @@
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
 #import "text/text.asm"
-#import "common/invoke-global.asm"
+#import "common/lib/invoke-global.asm"
 #import "../copper64.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
@@ -143,7 +143,8 @@ next:
 
 startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
 fillScreen: .namespace c64lib { _fillScreen() }
-copyLargeMemForward: .namespace c64lib { _copyLargeMemForward() }
+copyLargeMemForward: 
+                #import "common/lib/sub/copy-large-mem-forward.asm"
 
 .print copperList
 here:

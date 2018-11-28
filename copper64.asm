@@ -10,8 +10,8 @@
  * GIT repo:  https://github.com/c64lib/copper64
  */
 #importonce
-#import "common/common.asm"
-#import "common/mem.asm"
+#import "common/lib/common.asm"
+#import "common/lib/mem.asm"
 #import "chipset/vic2.asm"
 #import "chipset/cia.asm"
 

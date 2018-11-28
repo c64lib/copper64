@@ -15,14 +15,14 @@
 #define IRQH_BORDER_BG_0_DIFF
 #define IRQH_JSR
 
-#import "common/invoke.asm"
-#import "common/mem.asm"
+#import "common/lib/invoke.asm"
+#import "common/lib/mem.asm"
 #import "chipset/mos6510.asm"
 #import "chipset/vic2.asm"
 #import "chipset/cia.asm"
 #import "text/text.asm"
-#import "common/math-global.asm"
-#import "common/invoke-global.asm"
+#import "common/lib/math-global.asm"
+#import "common/lib/invoke-global.asm"
 #import "../copper64.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
