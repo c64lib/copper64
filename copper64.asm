@@ -12,8 +12,8 @@
 #importonce
 #import "common/lib/common.asm"
 #import "common/lib/mem.asm"
-#import "chipset/vic2.asm"
-#import "chipset/cia.asm"
+#import "chipset/lib/vic2.asm"
+#import "chipset/lib/cia.asm"
 
 .filenamespace c64lib
 
