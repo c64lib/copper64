@@ -22,7 +22,7 @@
 #import "text/lib/scroll1x1.asm"
 #import "common/lib/mem-global.asm"
 #import "common/lib/invoke-global.asm"
-#import "../copper64.asm"
+#import "../lib/copper64.asm"
 
 // zero page addresses
 .label DISPLAY_LIST_PTR_LO = $02

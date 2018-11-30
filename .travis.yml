@@ -6,7 +6,7 @@ script:
   - cpm common https://github.com/c64lib/common/archive/master.tar.gz
   - cpm chipset https://github.com/c64lib/chipset/archive/master.tar.gz 
   - cpm text https://github.com/c64lib/text/archive/master.tar.gz 
-  - kall .
+  - kall lib
   - kall examples
 notifications:
   email:
