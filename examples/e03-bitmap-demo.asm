@@ -14,9 +14,9 @@
 #define IRQH_JSR
 #define VISUAL_DEBUG
 
-#import "chipset/mos6510.asm"
-#import "chipset/vic2.asm"
-#import "text/text.asm"
+#import "chipset/lib/mos6510.asm"
+#import "chipset/lib/vic2.asm"
+#import "text/lib/text.asm"
 #import "common/lib/invoke-global.asm"
 #import "../copper64.asm"
 

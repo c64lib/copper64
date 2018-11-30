@@ -12,9 +12,9 @@
 #define IRQH_FULL_RASTER_BAR
 #define IRQH_JSR
 
-#import "chipset/mos6510.asm"
-#import "chipset/vic2.asm"
-#import "text/text.asm"
+#import "chipset/lib/mos6510.asm"
+#import "chipset/lib/vic2.asm"
+#import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
 #import "common/lib/invoke-global.asm"
 #import "../copper64.asm"
