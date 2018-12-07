@@ -70,7 +70,8 @@ nextRow:
 }
 
 startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
-outHex:      .namespace c64lib { _outHex() }
+outHex:      
+      #import "text/lib/sub/out-hex.asm"
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR

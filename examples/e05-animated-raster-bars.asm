@@ -102,7 +102,8 @@ nextRow:
 }
 
 startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
-outHex:     .namespace c64lib { _outHex() }
+outHex:     
+        #import "text/lib/sub/out-hex.asm"
 
 .align $100
 sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
