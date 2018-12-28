@@ -236,15 +236,17 @@ copperList:
 
 // library hosted functions
 startCopper:    .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
-outHex:         
-        #import "text/lib/sub/out-hex.asm"
-outText:        
-        #import "text/lib/sub/out-text.asm"
 scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
-fillMem:        .namespace c64lib { _fillMem() }
+outHex:         
+                #import "text/lib/sub/out-hex.asm"
+outText:        
+                #import "text/lib/sub/out-text.asm"
+fillMem:
+                #import "common/lib/sub/fill-mem.asm"
 rotateMemRight: 
                 #import "common/lib/sub/rotate-mem-right.asm"
-fillScreen:     .namespace c64lib { _fillScreen() }
+fillScreen:
+                #import "common/lib/sub/fill-screen.asm"
 copyLargeMemForward: 
                 #import "common/lib/sub/copy-large-mem-forward.asm"
 endOfLibs:

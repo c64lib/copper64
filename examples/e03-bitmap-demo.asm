@@ -142,7 +142,8 @@ next:
 }
 
 startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
-fillScreen: .namespace c64lib { _fillScreen() }
+fillScreen:
+                #import "common/lib/sub/fill-screen.asm"
 copyLargeMemForward: 
                 #import "common/lib/sub/copy-large-mem-forward.asm"
 
