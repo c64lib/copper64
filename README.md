@@ -222,54 +222,45 @@ copperEntry(<raster>, c64lib.IRQH_BORDER_BG_0_DIFF, <border color>, <background 
 
 ## Set VIC memory register and VIC memory bank
 Changes VIC memory control and VIC memory bank in one step.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_MEM_BANK</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>8</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Value for MEMORY_CONTROL register</td>
-	</tr>
-	<tr>
-		<th>Argument 2</th><td>Value for VIC bank</td>
-	</tr>
-</table>
+
+* __Handler label:__ `IRQH_MEM_BANK`
+* __Handler code:__ `8`
+* __Argument 1:__ value for `MEMORY_CONTROL` register
+* __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_MEM_BANK, <memory control>, <vic bank number>)
+```
 
 ## Set VIC mode and memory settings
 Changes VIC display mode and memory settings in one step. VIC bank cannot be changed.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_MODE_MEM</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>9</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Values for two control registers are packed in one byte: `%00010000` for Multicolor, `%01100000` for ECM or Bitmap</td>
-	</tr>
-	<tr>
-		<th>Argument 2</th><td>Value for MEMORY_CONTROL register</td>
-	</tr>
-</table>
+
+* __Handler label:__ `IRQH_MODE_MEM`
+* __Handler code:__ `9`
+* __Argument 1:__ mode of vic2; for performance reasons the values for two control registers are packed in one byte: `%00010000` for Multicolor, `%01100000` for ECM or Bitmap
+* __Argument 2:__ value for `MEMORY_CONTROL` register
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_MODE_MEM, <vic mode>, <memory control>)
+```
 
 ## Jump to custom subroutine
 Jumps to custom subroutine that can do whatever you want, i.e. play music. Subroutine must end with `rts`.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_JSR</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>10</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Low byte of subroutine address</td>
-	</tr>
-	<tr>
-		<th>Argument 2</th><td>High byte of subroutine address</td>
-	</tr>
-</table>
+
+* __Handler label:__ `IRQH_JSR`
+* __Handler code:__ `10`
+* __Argument 1:__ Low byte of subroutine address
+* __Argument 2:__ High byte of subroutine address
+* __Cycled:__ no
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_JSR, <address, >address)
+```
 
 ## Set hires bitmap mode
 
@@ -280,6 +271,14 @@ Jumps to custom subroutine that can do whatever you want, i.e. play music. Subro
 ## Set multicolor text mode
 
 ## Set extended background mode
+
+## Full raster bar
+
+## Background only raster bar
+
+## Horizontal scroll
+
+## Mapped horizontal scroll
 
 # Data model
 Copper64 operates on IRQ table consisting of IRQ entries. Each IRQ entry is
