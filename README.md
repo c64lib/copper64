@@ -348,7 +348,7 @@ Usage:
 copperEntry(<raster>, c64lib.IRQH_FULL_RASTER_BAR, <address, >address)
 ```
 
-## Background only raster bar
+## Background-only raster bar
 Generates colorful raster bar across whole background. Color for each subsequent bar line is fetched from `$FF` terminated array of colors (values `0..15`). Because procedure is cycled using busy waiting on raster, a raster time for whole bar will be consumed. Color array can be cycled or modified in any way to get interesting animation effects.
 
 * __Handler label:__ `IRQH_BG_RASTER_BAR`
