@@ -280,7 +280,7 @@ copperEntry(<raster>, c64lib.IRQH_MODE_HIRES_BITMAP, <memory control>, <vic bank
 Sets up multicolor bitmap mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
 
 * __Handler label:__ `IRQH_MODE_MULTIC_BITMAP`
-* __Handler code:__ `11`
+* __Handler code:__ `12`
 * __Argument 1:__ value for `MEMORY_CONTROL` register
 * __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
 * __Cycled:__ yes (PAL, 63 cycles)
@@ -294,7 +294,7 @@ copperEntry(<raster>, c64lib.IRQH_MODE_MULTIC_BITMAP, <memory control>, <vic ban
 Sets up hires text mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
 
 * __Handler label:__ `IRQH_MODE_HIRES_TEXT`
-* __Handler code:__ `11`
+* __Handler code:__ `13`
 * __Argument 1:__ value for `MEMORY_CONTROL` register
 * __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
 * __Cycled:__ yes (PAL, 63 cycles)
@@ -308,7 +308,7 @@ copperEntry(<raster>, c64lib.IRQH_MODE_HIRES_TEXT, <memory control>, <vic bank n
 Sets up multicolor text mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
 
 * __Handler label:__ `IRQH_MODE_MULTIC_TEXT`
-* __Handler code:__ `11`
+* __Handler code:__ `14`
 * __Argument 1:__ value for `MEMORY_CONTROL` register
 * __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
 * __Cycled:__ yes (PAL, 63 cycles)
@@ -322,7 +322,7 @@ copperEntry(<raster>, c64lib.IRQH_MODE_MULTIC_TEXT, <memory control>, <vic bank 
 Sets up extended text mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
 
 * __Handler label:__ `IRQH_MODE_EXTENDED_TEXT`
-* __Handler code:__ `11`
+* __Handler code:__ `15`
 * __Argument 1:__ value for `MEMORY_CONTROL` register
 * __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
 * __Cycled:__ yes (PAL, 63 cycles)
@@ -333,8 +333,32 @@ copperEntry(<raster>, c64lib.IRQH_MODE_EXTENDED_TEXT, <memory control>, <vic ban
 ```
 
 ## Full raster bar
+Generates colorful raster bar across whole screen including border. Color for each subsequent bar line is fetched from `$FF` terminated array of colors (values `0..15`). Because procedure is cycled using busy waiting on raster, a raster time for whole bar will be consumed. Color array can be cycled or modified in any way to get interesting animation effects.
+
+* __Handler label:__ `IRQH_FULL_RASTER_BAR`
+* __Handler code:__ `16`
+* __Argument 1:__ Low byte of bar color definition address
+* __Argument 2:__ High byte of bar color definition address
+* __Cycled:__ yes (PAL, 63 cycles) - it sucks on badlines however
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_FULL_RASTER_BAR, <address, >address)
+```
 
 ## Background only raster bar
+Generates colorful raster bar across whole background. Color for each subsequent bar line is fetched from `$FF` terminated array of colors (values `0..15`). Because procedure is cycled using busy waiting on raster, a raster time for whole bar will be consumed. Color array can be cycled or modified in any way to get interesting animation effects.
+
+* __Handler label:__ `IRQH_BG_RASTER_BAR`
+* __Handler code:__ `17`
+* __Argument 1:__ Low byte of bar color definition address
+* __Argument 2:__ High byte of bar color definition address
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BG_RASTER_BAR, <address, >address)
+```
 
 ## Horizontal scroll
 
