@@ -124,17 +124,17 @@ The `initCopper` macro installs copper64 initialization routine that can be then
 # IRQ handlers reference
 ## Set border color
 Changes border color, the color can be specified as argument 1.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_BORDER_COL</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>1</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Color code for border</td>
-	</tr>
-</table>
+
+* Handler label: `IRQH_BORDER_COL`
+* Handler code: `1`
+* Argument 1: desired border color; `0..15`
+* Argument 2: unused
+* Cycled: yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BORDER_COL, <color>, 0)
+```
 
 ## Set background color 0
 Changes background color 0, the color can be specified as argument 1.
