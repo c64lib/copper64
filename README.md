@@ -123,13 +123,13 @@ The `initCopper` macro installs copper64 initialization routine that can be then
 
 # IRQ handlers reference
 ## Set border color
-Changes border color, the color can be specified as argument 1.
+Changes border color.
 
-* Handler label: `IRQH_BORDER_COL`
-* Handler code: `1`
-* Argument 1: desired border color; `0..15`
-* Argument 2: unused
-* Cycled: yes (PAL, 63 cycles)
+* __Handler label:__ `IRQH_BORDER_COL`
+* __Handler code:__ `1`
+* __Argument 1:__ desired border color; `0..15`
+* __Argument 2:__ unused
+* __Cycled:__ yes (PAL, 63 cycles)
 
 Usage:
 ```(assembler)
@@ -137,91 +137,88 @@ copperEntry(<raster>, c64lib.IRQH_BORDER_COL, <color>, 0)
 ```
 
 ## Set background color 0
-Changes background color 0, the color can be specified as argument 1.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_BG_COL_0</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>2</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Color code for background 0</td>
-	</tr>
-</table>
+Changes background color 0.
+
+* __Handler label:__ `IRQH_BG_COL_0`
+* __Handler code:__ `2`
+* __Argument 1:__ desired background 0 color; `0..15`
+* __Argument 2:__ unused
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BG_COL_0, <color>, 0)
+```
 
 ## Set background color 1
-Changes background color 1, the color can be specified as argument 1.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_BG_COL_1</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>3</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Color code for background 1</td>
-	</tr>
-</table>
+Changes background color 1.
+
+* __Handler label:__ `IRQH_BG_COL_1`
+* __Handler code:__ `3`
+* __Argument 1:__ desired background 1 color; `0..15`
+* __Argument 2:__ unused
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BG_COL_1, <color>, 0)
+```
 
 ## Set background color 2
-Changes background color 2, the color can be specified as argument 1.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_BG_COL_2</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>4</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Color code for background 2</td>
-	</tr>
-</table>
+Changes background color 2.
+
+* __Handler label:__ `IRQH_BG_COL_2`
+* __Handler code:__ `4`
+* __Argument 1:__ desired background 2 color; `0..15`
+* __Argument 2:__ unused
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BG_COL_2, <color>, 0)
+```
 
 ## Set background color 3
-Changes background color 3, the color can be specified as argument 1.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_BG_COL_3</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>5</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Color code for background 3</td>
-	</tr>
-</table>
+Changes background color 3.
+
+* __Handler label:__ `IRQH_BG_COL_3`
+* __Handler code:__ `5`
+* __Argument 1:__ desired background 3 color; `0..15`
+* __Argument 2:__ unused
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BG_COL_3, <color>, 0)
+```
 
 ## Set border and background 0 color uniformly
-Changes background color 0 and border color to the same color, the color can be specified as argument 1.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_BORDER_BG_0_COL</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>6</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Common color code for background 0 and border</td>
-	</tr>
-</table>
+Changes background color 0 and border color to the same color.
+
+* __Handler label:__ `IRQH_BORDER_BG_0_COL`
+* __Handler code:__ `6`
+* __Argument 1:__ desired color for border and background 0; `0..15`
+* __Argument 2:__ unused
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BORDER_BG_0_COL, <color>, 0)
+```
 
 ## Set border and background 0 color separately
 Changes background color 0 and border color to another values in single step, the colors are specified as arguments.
-<table>
-	<tr>
-		<th>Handler label</th><td><code>IRQH_BORDER_BG_0_DIFF</code></td>
-	</tr>
-	<tr>
-		<th>Handler code</th><td><code>7</code></td>
-	</tr>
-	<tr>
-		<th>Argument 1</th><td>Color code for border</td>
-	</tr>
-	<tr>
-		<th>Argument 2</th><td>Color code for background 0</td>
-	</tr>
-</table>
+
+* __Handler label:__ `IRQH_BORDER_BG_0_DIFF`
+* __Handler code:__ `7`
+* __Argument 1:__ desired color for border; `0..15`
+* __Argument 2:__ desired color for background 0; `0..15`
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_BORDER_BG_0_DIFF, <border color>, <background color>)
+```
 
 ## Set VIC memory register and VIC memory bank
 Changes VIC memory control and VIC memory bank in one step.
