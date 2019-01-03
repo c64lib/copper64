@@ -277,12 +277,60 @@ copperEntry(<raster>, c64lib.IRQH_MODE_HIRES_BITMAP, <memory control>, <vic bank
 ```
 
 ## Set multicolor mode
+Sets up multicolor bitmap mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
+
+* __Handler label:__ `IRQH_MODE_MULTIC_BITMAP`
+* __Handler code:__ `11`
+* __Argument 1:__ value for `MEMORY_CONTROL` register
+* __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_MODE_MULTIC_BITMAP, <memory control>, <vic bank number>)
+```
 
 ## Set hires text mode
+Sets up hires text mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
+
+* __Handler label:__ `IRQH_MODE_HIRES_TEXT`
+* __Handler code:__ `11`
+* __Argument 1:__ value for `MEMORY_CONTROL` register
+* __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_MODE_HIRES_TEXT, <memory control>, <vic bank number>)
+```
 
 ## Set multicolor text mode
+Sets up multicolor text mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
+
+* __Handler label:__ `IRQH_MODE_MULTIC_TEXT`
+* __Handler code:__ `11`
+* __Argument 1:__ value for `MEMORY_CONTROL` register
+* __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_MODE_MULTIC_TEXT, <memory control>, <vic bank number>)
+```
 
 ## Set extended background mode
+Sets up extended text mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
+
+* __Handler label:__ `IRQH_MODE_EXTENDED_TEXT`
+* __Handler code:__ `11`
+* __Argument 1:__ value for `MEMORY_CONTROL` register
+* __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_MODE_EXTENDED_TEXT, <memory control>, <vic bank number>)
+```
 
 ## Full raster bar
 
