@@ -357,12 +357,40 @@ Generates colorful raster bar across whole background. Color for each subsequent
 
 Usage:
 ```(assembler)
-copperEntry(<raster>, c64lib.IRQH_BG_RASTER_BAR, <address, >address)
+copperEntry(<raster>, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
+...
+colorCycleDef:  .byte COLOR_3, LIGHT_RED, RED, LIGHT_RED, YELLOW, WHITE, YELLOW, YELLOW, COLOR_3, $ff
 ```
 
 ## Horizontal scroll
+Scrolls screen horizontally using specified amount of pixels.
+
+* __Handler label:__ `IRQH_HSCROLL`
+* __Handler code:__ `17`
+* __Argument 1:__ value for horizontal scroll register (`0..7`)
+* __Argument 2:__ unused
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_HSCROLL, <scroll value>, 0)
+```
 
 ## Mapped horizontal scroll
+Applies shallow tech-tech effect (using values `0..7`) starting from given raster position. Horizontal scroll value for each corresponding raster line is taken from `$FF` terminated array of values, each should contain value from `0..7` range. The scroll map can be further modified (i.e. rotated) to achieve interesting animation effects.
+
+* __Handler label:__ `IRQH_HSCROLL_MAP`
+* __Handler code:__ `17`
+* __Argument 1:__ low byte of scroll map definition address
+* __Argument 2:__ high value of scroll map definition address
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_HSCROLL_MAP, <hscrollMapDef, >hscrollMapDef)
+...
+hscrollMapDef:  .fill TECH_TECH_WIDTH, round(3.5 + 3.5*sin(toRadians(i*360/TECH_TECH_WIDTH))) ; .byte 0; .byte $ff
+```
 
 # Data model
 Copper64 operates on IRQ table consisting of IRQ entries. Each IRQ entry is
