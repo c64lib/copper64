@@ -77,10 +77,10 @@ Second attribute to the entry is always a handler code. All supported handlers a
 	#define IRQH_BORDER_BG_0_DIFF
 	#define IRQH_JSR
 
-	#import "chipset/mos6510.asm"
-	#import "chipset/vic2.asm"
-	#import "text/text.asm"
-	#import "../copper64.asm"
+	#import "chipset/lib/mos6510.asm"
+	#import "chipset/lib/vic2.asm"
+	#import "text/lib/text.asm"
+	#import "copper64/lib/copper64.asm"
  
 As you see you can do it with `#define` directive. Just make sure that you define all of them before importing `copper64.asm`, otherwise it will not work.
 
@@ -263,6 +263,18 @@ copperEntry(<raster>, c64lib.IRQH_JSR, <address, >address)
 ```
 
 ## Set hires bitmap mode
+Sets up hires bitmap mode using given memory layout and VIC bank. Useful for screen splits using totally different memory locations for VIC chip.
+
+* __Handler label:__ `IRQH_MODE_HIRES_BITMAP`
+* __Handler code:__ `11`
+* __Argument 1:__ value for `MEMORY_CONTROL` register
+* __Argument 2:__ value for VIC bank (goes to `CIA2_DATA_PORT_A`); only two least significant bits are taken, other bits of the data port are preserved
+* __Cycled:__ yes (PAL, 63 cycles)
+
+Usage:
+```(assembler)
+copperEntry(<raster>, c64lib.IRQH_MODE_HIRES_BITMAP, <memory control>, <vic bank number>)
+```
 
 ## Set multicolor mode
 
