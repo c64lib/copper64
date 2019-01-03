@@ -17,6 +17,8 @@ As for now there are three example programs available that demonstrate capabilit
 * [`e02-screen-modes.asm`](https://github.com/c64lib/copper64/blob/master/examples/e02-screen-modes.asm) - shows several different screen modes mixed together.
 * [`e03-bitmap-demo.asm`](https://github.com/c64lib/copper64/blob/master/examples/e03-bitmap-demo.asm) - mixes regular text and hires bitmap modes while playing music and animating background.
 
+For more sophisticated example please refer my [bluevessel](https://github.com/maciejmalecki/bluevessel) intro.
+
 As library management system is not yet complete, you have to do several steps manually in order to be able to assembly and run examples. One possible approach is following:
 1. Create new directory and name it i.e.: `c64lib`
 2. Inside of this directory clone `common`, `chipset`, `text` and `copper64` libraries:
