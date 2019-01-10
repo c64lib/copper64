@@ -6,6 +6,7 @@ at programmable raster lines. This library utilizes raster interrupt functionali
 ## Build status
 
 * master: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=master)](https://travis-ci.org/c64lib/copper64)
+* develop: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=develop)](https://travis-ci.org/c64lib/copper64)
 
 # Usage
 ## Using as KickAssembler library
