@@ -10,10 +10,6 @@
  */
  
 // #define VISUAL_DEBUG
-#define IRQH_BG_RASTER_BAR
-#define IRQH_HSCROLL
-#define IRQH_JSR
-#define IRQH_HSCROLL_MAP
 
 #import "chipset/lib/mos6510.asm"
 #import "chipset/lib/vic2.asm"
@@ -235,7 +231,10 @@ copperList:
   copperLoop()
 
 // library hosted functions
-startCopper:    .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+startCopper:    .namespace c64lib { _startCopper(
+                                        DISPLAY_LIST_PTR_LO, 
+                                        LIST_PTR, 
+                                        List().add(IRQH_BG_RASTER_BAR, IRQH_HSCROLL, IRQH_JSR, IRQH_HSCROLL_MAP).lock()) }
 scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
 outHex:         
                 #import "text/lib/sub/out-hex.asm"

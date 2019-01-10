@@ -8,10 +8,6 @@
  * (c):       2018
  * GIT repo:  https://github.com/c64lib/copper64
  */
- 
-#define IRQH_BG_RASTER_BAR
-#define IRQH_JSR
-
 #import "chipset/lib/mos6510.asm"
 #import "chipset/lib/vic2.asm"
 #import "text/lib/text.asm"
@@ -101,7 +97,7 @@ nextRow:
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, List().add(IRQH_BG_RASTER_BAR, IRQH_JSR).lock()) }
 outHex:     
         #import "text/lib/sub/out-hex.asm"
 

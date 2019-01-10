@@ -27,9 +27,9 @@
  */
 .label IRQH_BORDER_COL          = 1
 .label IRQH_BG_COL_0            = 2
-.label IRQH_BH_COL_1            = 3
-.label IRQH_BH_COL_2            = 4
-.label IRQH_BH_COL_3            = 5
+.label IRQH_BG_COL_1            = 3
+.label IRQH_BG_COL_2            = 4
+.label IRQH_BG_COL_3            = 5
 .label IRQH_BORDER_BG_0_COL     = 6
 .label IRQH_BORDER_BG_0_DIFF    = 7
 
@@ -167,6 +167,18 @@
   copperEntry(0, IRQH_LOOP, 0, 0)
 }
 
+.function _handlersToHashmap(handlersList) {
+  .var result = Hashtable()
+  .for (var i = 0; i < handlersList.size(); i++) {
+    .eval result.put(handlersList.get(i), i)
+  }
+  .return result
+}
+
+.function _has(handlersMap, handlerCode) {
+  .return handlersMap.containsKey(handlerCode)
+}
+
 // Hosted subroutines
 
 /*
@@ -179,12 +191,15 @@
  * _stopCopper, change copper list address specified by listStart (zero page) and relaunch by calling
  * _startCopper again.
  *
- * Requires 4 bytes on zero page: 2 subsequent for listStart, 1 byte for list pointer (Y)
+ * Requires 3 bytes on zero page: 2 subsequent for listStart, 1 byte for list pointer (Y)
  *
  * listStart - begin address of display list stored on zero page
  * listPtr - address for Y reg storage
+ * handlersList - KA List with handler codes 
  */
-.macro _startCopper(listStart, listPtr) {
+.macro _startCopper(listStart, listPtr, handlersList) {
+  .var handlers = _handlersToHashmap(handlersList)
+
   // here we do initialize and install first interrupt handler
   lda #$00
   sta listPtr
@@ -268,7 +283,7 @@ skip:                           // we do skip the copper list, useful for disabl
 irqHandlers:
   .print "IRQ Handlers start at: " + toHexString(irqHandlers)
   irqh1:                              // (?) border color; stable + jitter; +1 raster
-    #if IRQH_BORDER_COL
+    .if (_has(handlers, IRQH_BORDER_COL)) {
       stabilize(irqh1Stabilized, commonEnd, false)
     irqh1Stabilized:                  // 7 + 0(1) 
       txs                             // 2
@@ -278,9 +293,9 @@ irqHandlers:
       sta BORDER_COL                  // 4 right horiz blanking
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder                // 3
-    #endif
+    }
   irqh2:                              // (?) background color 0, stable + jitter; +1 raster
-    #if IRQH_BG_COL_0
+    .if (_has(handlers, IRQH_BG_COL_0)) {
       stabilize(irqh2Stabilized, commonEnd, false)
     irqh2Stabilized:                  // 7
       txs                             // 2
@@ -289,9 +304,9 @@ irqHandlers:
       sta BG_COL_0                    // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder                // 3
-    #endif
+    }
   irqh3:                              // (22) background color 1
-    #if IRQH_BG_COL_1
+    .if (_has(handlers, IRQH_BG_COL_1)) {
       stabilize(irqh3Stabilized, commonEnd, false)
     irqh3Stabilized:                  // 7
       txs                             // 2
@@ -300,9 +315,9 @@ irqHandlers:
       sta BG_COL_1                    // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder                // 3
-    #endif
+    }
   irqh4:                              // (22) background color 2
-    #if IRQH_BG_COL_2
+    .if (_has(handlers, IRQH_BG_COL_2)) {
       stabilize(irqh4Stabilized, commonEnd, false)
     irqh4Stabilized:                  // 7
       txs                             // 2
@@ -311,9 +326,9 @@ irqHandlers:
       sta BG_COL_2                    // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder                // 3
-    #endif
+    }
   irqh5:                              // (22) background color 3
-    #if IRQH_BG_COL_3
+    .if (_has(handlers, IRQH_BG_COL_3)) {
       stabilize(irqh5Stabilized, commonEnd, false)
     irqh5Stabilized:                  // 7
       txs                             // 2
@@ -322,9 +337,9 @@ irqHandlers:
       sta BG_COL_3                    // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder                // 3
-    #endif
+    }
   irqh6:                              // (?) border and background color 0 same; stable + jitter; +1 raster
-    #if IRQH_BORDER_BG_0_COL
+    .if (_has(handlers, IRQH_BORDER_BG_0_COL)) {
       stabilize(irqh6Stabilized, commonEnd, false)
     irqh6Stabilized:
       txs
@@ -335,9 +350,9 @@ irqHandlers:
       sta BORDER_COL              // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder            // 3
-    #endif
+    }
   irqh7:                        // (31) border and background color 0 different; stable + jitter; +1 raster
-    #if IRQH_BORDER_BG_0_DIFF
+    .if (_has(handlers, IRQH_BORDER_BG_0_DIFF)) {
       stabilize(irqh7Stabilized, commonEnd, false)
     irqh7Stabilized:
       txs
@@ -352,9 +367,9 @@ irqHandlers:
       sta BORDER_COL              // 4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args       // 3
-    #endif
+    }
   irqh8:                          // (28) set vic-ii memory and bank TODO stabilize
-    #if IRQH_MEM_BANK
+    .if (_has(handlers, IRQH_MEM_BANK)) {
       lda (listStart),y           // 5
       sta MEMORY_CONTROL          // 4
       iny                         // 2
@@ -363,12 +378,12 @@ irqHandlers:
       ora (listStart),y
       sta CIA2_DATA_PORT_A
       jmp irqhReminder2Args       // 3
-    #endif
+    }
   irqh9:                          // change vic-ii mode and memory settings
                                   // arg 1: CR2: 00010000 Multicolor
                                   // arg 1: CR1: 01100000 ExtendedColor, Bitmap mode
                                   // arg 2: Memory Control
-    #if IRQH_MODE_MEM
+    .if (_has(handlers, IRQH_MODE_MEM)) {
       stabilize(irqh9Stabilized, commonEnd, false)
     irqh9Stabilized:
       txs                         // 2
@@ -396,9 +411,9 @@ irqHandlers:
       sta MEMORY_CONTROL          // *4
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
-    #endif
+    }
   irqh10:                         // jsr (jsr address lo | lsr address hi)
-    #if IRQH_JSR
+    .if (_has(handlers, IRQH_JSR)) {
       lda (listStart),y           // 4
       sta irqh10jsr+1             // 4
       iny                         // 2
@@ -409,54 +424,54 @@ irqHandlers:
       jsr $0000
       ldy listPtr
       jmp irqhReminder2Args
-    #endif
+    }
   irqh11:                       // HIRES Bitmap mode (memory control | bank)
-    #if IRQH_MODE_HIRES_BITMAP
+    .if (_has(handlers, IRQH_MODE_HIRES_BITMAP)) {
       stabilize(irqh11Stabilized, commonEnd, false)
     irqh11Stabilized:
       txs
       setBankMemoryAndMode(STANDARD_BITMAP_MODE, listStart, listPtr, accu1)
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
-    #endif
+    }
   irqh12:                       // MULTIC Bitmap mode (memory control | bank)
-    #if IRQH_MODE_MULTIC_BITMAP
+    .if (_has(handlers, IRQH_MODE_MULTIC_BITMAP)) {
       stabilize(irqh12Stabilized, commonEnd, false)
     irqh12Stabilized:
       txs
       setBankMemoryAndMode(MULTICOLOR_BITMAP_MODE, listStart, listPtr, accu1)
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
-    #endif
+    }
   irqh13:                       // HIRES Text (memory control | bank) TODO stabilize
-    #if IRQH_MODE_HIRES_TEXT
+    .if (_has(handlers, IRQH_MODE_HIRES_TEXT)) {
       stabilize(irqh13Stabilized, commonEnd, false)
     irqh13Stabilized:
       txs
       setBankMemoryAndMode(STANDARD_TEXT_MODE, listStart, listPtr, accu1)
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
-    #endif
+    }
   irqh14:                       // MULTIC Text (memory control | bank) TODO stabilize
-    #if IRQH_MODE_MULTIC_TEXT
+    .if (_has(handlers, IRQH_MODE_MULTIC_TEXT)) {
       stabilize(irqh14Stabilized, commonEnd, false)
     irqh14Stabilized:
       txs
       setBankMemoryAndMode(MULTICOLOR_TEXT_MODE, listStart, listPtr, accu1)
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
-    #endif
+    }
   irqh15:                       // EXTENDED Background Text (memory control | bank) TODO stabilize
-    #if IRQH_MODE_EXTENDED_TEXT
+    .if (_has(handlers, IRQH_MODE_EXTENDED_TEXT)) {
       stabilize(irqh15Stabilized, commonEnd, false)
     irqh15Stabilized:
       txs
       setBankMemoryAndMode(EXTENDED_TEXT_MODE, listStart, listPtr, accu1)
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder2Args
-    #endif
+    }
   irqh16: {                     // FULL Color raster bar (bar definition ptr lo | bar definition ptr hi)
-    #if IRQH_FULL_RASTER_BAR
+    .if (_has(handlers, IRQH_FULL_RASTER_BAR)) {
       lda (listStart), y
       sta rasterList + 1
       iny
@@ -478,10 +493,10 @@ irqHandlers:
     end:
       ldy listPtr
       jmp irqhReminder2Args
-    #endif
+    }
     }
   irqh17: {                     // BG only color raster bar (bar definition ptr lo | bar definition ptr hi)
-    #if IRQH_BG_RASTER_BAR
+    .if (_has(handlers, IRQH_BG_RASTER_BAR)) {
       lda (listStart), y
       sta rasterList + 1
       iny
@@ -502,10 +517,10 @@ irqHandlers:
     end:
       ldy listPtr
       jmp irqhReminder2Args
-    #endif
+    }
     }
   irqh18: {						// HSCROLL by given pixels
-    #if IRQH_HSCROLL
+    .if (_has(handlers, IRQH_HSCROLL)) {
       stabilize(irqh18Stabilized, commonEnd, false)
     irqh18Stabilized:
       txs
@@ -515,10 +530,10 @@ irqHandlers:
       sta CONTROL_2
       setMasterIrqHandler(copperIrq)
       jmp irqhReminder
-    #endif
+    }
   }
   irqh19: {						// tech tech effect using HSCROLL and pixel map
-  	#if IRQH_HSCROLL_MAP
+  	.if (_has(handlers, IRQH_HSCROLL_MAP)) {
       lda (listStart), y
       sta hscrollMap + 1
       iny
@@ -545,7 +560,7 @@ irqHandlers:
     end:
       ldy listPtr
       jmp irqhReminder2Args
-  	#endif
+  	}
   }
   irqhReminder:
     iny

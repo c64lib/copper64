@@ -8,13 +8,6 @@
  * (c):       2018
  * GIT repo:  https://github.com/c64lib/copper64
  */
- 
-#define IRQH_BORDER_COL
-#define IRQH_BG_COL_0
-#define IRQH_BORDER_BG_0_COL
-#define IRQH_BORDER_BG_0_DIFF
-#define IRQH_JSR
-
 #import "common/lib/invoke.asm"
 #import "common/lib/mem.asm"
 #import "chipset/lib/mos6510.asm"
@@ -93,7 +86,15 @@ outHex:
             #import "text/lib/sub/out-hex.asm"
 outText:	  
             #import "text/lib/sub/out-text.asm"
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+startCopper: .namespace c64lib { _startCopper(
+                                    DISPLAY_LIST_PTR_LO, 
+                                    LIST_PTR, 
+                                    List().add(
+                                      IRQH_BORDER_COL, 
+                                      IRQH_BG_COL_0, 
+                                      IRQH_BORDER_BG_0_COL, 
+                                      IRQH_BORDER_BG_0_DIFF, 
+                                      IRQH_JSR).lock()) }
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR

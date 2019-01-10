@@ -8,12 +8,6 @@
  * (c):       2018
  * GIT repo:  https://github.com/c64lib/copper64
  */
- 
-#define IRQH_MODE_MEM
-#define IRQH_BG_COL_0
-#define IRQH_JSR
-#define VISUAL_DEBUG
-
 #import "chipset/lib/mos6510.asm"
 #import "chipset/lib/vic2.asm"
 #import "text/lib/text.asm"
@@ -141,7 +135,10 @@ next:
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+startCopper: .namespace c64lib { _startCopper(
+                                    DISPLAY_LIST_PTR_LO, 
+                                    LIST_PTR, 
+                                    List().add(IRQH_MODE_MEM, IRQH_BG_COL_0, IRQH_JSR).lock()) }
 fillScreen:
                 #import "common/lib/sub/fill-screen.asm"
 copyLargeMemForward: 

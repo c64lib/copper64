@@ -8,9 +8,6 @@
  * (c):       2018
  * GIT repo:  https://github.com/c64lib/copper64
  */
- 
-#define IRQH_MODE_MEM
-
 #import "chipset/lib/mos6510.asm"
 #import "chipset/lib/vic2.asm"
 #import "text/lib/text.asm"
@@ -69,7 +66,7 @@ nextRow:
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, List().add(IRQH_MODE_MEM).lock()) }
 outHex:      
       #import "text/lib/sub/out-hex.asm"
 
