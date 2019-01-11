@@ -13,7 +13,7 @@
 #import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
@@ -67,7 +67,7 @@ nextRow:
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, List().add(IRQH_FULL_RASTER_BAR, IRQH_JSR).lock()) }
+startCopper: c64lib_startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, List().add(c64lib.IRQH_FULL_RASTER_BAR).lock())
 outHex:      
         #import "text/lib/sub/out-hex.asm"
 
@@ -77,6 +77,6 @@ barDef:     .byte 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, BLUE, $
 
 .align $100
 copperList: {
-  copperEntry(102, c64lib.IRQH_FULL_RASTER_BAR, <barDef, >barDef)
-  copperLoop()
+  c64lib_copperEntry(102, c64lib.IRQH_FULL_RASTER_BAR, <barDef, >barDef)
+  c64lib_copperLoop()
 }

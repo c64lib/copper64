@@ -18,7 +18,7 @@
 #import "text/lib/scroll1x1.asm"
 #import "common/lib/mem-global.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 // zero page addresses
 .label DISPLAY_LIST_PTR_LO = $02
@@ -218,23 +218,23 @@ endOfCode:
 
 .align $100
 copperList:
-  copperEntry(0, c64lib.IRQH_JSR, <doScroll, >doScroll)
-  copperEntry(25, c64lib.IRQH_JSR, <doColorCycle, >doColorCycle)
-  copperEntry(LOGO_LINE, c64lib.IRQH_HSCROLL_MAP, <hscrollMapDef, >hscrollMapDef)
-  copperEntry(CREDITS_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
-  copperEntry(CREDITS_COLOR_BARS_LINE + 16, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
-  hscroll: copperEntry(SCROLL_HSCROLL_LINE_START, c64lib.IRQH_HSCROLL, 5, 0)
-  copperEntry(SCROLL_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <scrollBarDef, >scrollBarDef)
-  copperEntry(SCROLL_HSCROLL_LINE_END, c64lib.IRQH_HSCROLL, 0, 0)
+  c64lib_copperEntry(0, c64lib.IRQH_JSR, <doScroll, >doScroll)
+  c64lib_copperEntry(25, c64lib.IRQH_JSR, <doColorCycle, >doColorCycle)
+  c64lib_copperEntry(LOGO_LINE, c64lib.IRQH_HSCROLL_MAP, <hscrollMapDef, >hscrollMapDef)
+  c64lib_copperEntry(CREDITS_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
+  c64lib_copperEntry(CREDITS_COLOR_BARS_LINE + 16, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
+  hscroll: c64lib_copperEntry(SCROLL_HSCROLL_LINE_START, c64lib.IRQH_HSCROLL, 5, 0)
+  c64lib_copperEntry(SCROLL_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <scrollBarDef, >scrollBarDef)
+  c64lib_copperEntry(SCROLL_HSCROLL_LINE_END, c64lib.IRQH_HSCROLL, 0, 0)
 
-  copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
-  copperLoop()
+  c64lib_copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
+  c64lib_copperLoop()
 
 // library hosted functions
-startCopper:    .namespace c64lib { _startCopper(
+startCopper:    c64lib_startCopper(
                                         DISPLAY_LIST_PTR_LO, 
                                         LIST_PTR, 
-                                        List().add(IRQH_BG_RASTER_BAR, IRQH_HSCROLL, IRQH_JSR, IRQH_HSCROLL_MAP).lock()) }
+                                        List().add(c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_HSCROLL_MAP).lock())
 scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
 outHex:         
                 #import "text/lib/sub/out-hex.asm"

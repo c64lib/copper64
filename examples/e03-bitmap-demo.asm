@@ -12,7 +12,7 @@
 #import "chipset/lib/vic2.asm"
 #import "text/lib/text.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
@@ -135,10 +135,10 @@ next:
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(
+startCopper: c64lib_startCopper(
                                     DISPLAY_LIST_PTR_LO, 
                                     LIST_PTR, 
-                                    List().add(IRQH_MODE_MEM, IRQH_BG_COL_0, IRQH_JSR).lock()) }
+                                    List().add(c64lib.IRQH_MODE_MEM, c64lib.IRQH_BG_COL_0, c64lib.IRQH_JSR).lock())
 fillScreen:
                 #import "common/lib/sub/fill-screen.asm"
 copyLargeMemForward: 
@@ -150,14 +150,14 @@ here:
 
 .align $100
 copperList: {
-  copperEntry(11, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
-  copperEntry(52, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
-  copperEntry(56, c64lib.IRQH_BG_COL_0, BLUE, 0)
-  copperEntry(113, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
-  copperEntry(193, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
-  copperEntry(241, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
-  copperEntry(246, c64lib.IRQH_BG_COL_0, GREY, 0)
-  copperLoop()
+  c64lib_copperEntry(11, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
+  c64lib_copperEntry(52, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
+  c64lib_copperEntry(56, c64lib.IRQH_BG_COL_0, BLUE, 0)
+  c64lib_copperEntry(113, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
+  c64lib_copperEntry(193, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
+  c64lib_copperEntry(241, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
+  c64lib_copperEntry(246, c64lib.IRQH_BG_COL_0, GREY, 0)
+  c64lib_copperLoop()
 }
 
 .print bitmapPacked

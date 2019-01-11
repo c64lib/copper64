@@ -16,7 +16,7 @@
 #import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
@@ -86,15 +86,14 @@ outHex:
             #import "text/lib/sub/out-hex.asm"
 outText:	  
             #import "text/lib/sub/out-text.asm"
-startCopper: .namespace c64lib { _startCopper(
+startCopper: c64lib_startCopper(
                                     DISPLAY_LIST_PTR_LO, 
                                     LIST_PTR, 
                                     List().add(
-                                      IRQH_BORDER_COL, 
-                                      IRQH_BG_COL_0, 
-                                      IRQH_BORDER_BG_0_COL, 
-                                      IRQH_BORDER_BG_0_DIFF, 
-                                      IRQH_JSR).lock()) }
+                                      c64lib.IRQH_BORDER_COL, 
+                                      c64lib.IRQH_BG_COL_0, 
+                                      c64lib.IRQH_BORDER_BG_0_COL, 
+                                      c64lib.IRQH_BORDER_BG_0_DIFF).lock())
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR
@@ -103,18 +102,18 @@ helloWorld: .text "*** hello world ***"; .byte $FF
 .align $100
 copperList: {
 
-  copperEntry(46, c64lib.IRQH_BORDER_COL, WHITE, 0)
-  copperEntry(81, c64lib.IRQH_BG_COL_0, YELLOW, 0)
-  copperEntry(101, c64lib.IRQH_BG_COL_0, LIGHT_GREEN, 0)
-  copperEntry(124, c64lib.IRQH_BG_COL_0, GREY, 0)
-  copperEntry(131, c64lib.IRQH_BG_COL_0, BLUE, 0)
-  copperEntry(150, c64lib.IRQH_BORDER_COL, RED, 0)
-  copperEntry(216, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
-  copperEntry(221, c64lib.IRQH_BORDER_BG_0_COL, GREY, $00)
-  copperEntry(227, c64lib.IRQH_BORDER_BG_0_COL, DARK_GREY, $00)
-  copperEntry(232, c64lib.IRQH_BORDER_BG_0_DIFF, RED, BLUE)
-  copperEntry(252, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
-  copperLoop()
+  c64lib_copperEntry(46, c64lib.IRQH_BORDER_COL, WHITE, 0)
+  c64lib_copperEntry(81, c64lib.IRQH_BG_COL_0, YELLOW, 0)
+  c64lib_copperEntry(101, c64lib.IRQH_BG_COL_0, LIGHT_GREEN, 0)
+  c64lib_copperEntry(124, c64lib.IRQH_BG_COL_0, GREY, 0)
+  c64lib_copperEntry(131, c64lib.IRQH_BG_COL_0, BLUE, 0)
+  c64lib_copperEntry(150, c64lib.IRQH_BORDER_COL, RED, 0)
+  c64lib_copperEntry(216, c64lib.IRQH_BORDER_BG_0_COL, LIGHT_GREY, $00)
+  c64lib_copperEntry(221, c64lib.IRQH_BORDER_BG_0_COL, GREY, $00)
+  c64lib_copperEntry(227, c64lib.IRQH_BORDER_BG_0_COL, DARK_GREY, $00)
+  c64lib_copperEntry(232, c64lib.IRQH_BORDER_BG_0_DIFF, RED, BLUE)
+  c64lib_copperEntry(252, c64lib.IRQH_BORDER_COL, LIGHT_BLUE, 0)
+  c64lib_copperLoop()
 }
 programEnd:
 

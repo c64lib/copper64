@@ -13,7 +13,7 @@
 #import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
@@ -97,7 +97,7 @@ nextRow:
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, List().add(IRQH_BG_RASTER_BAR, IRQH_JSR).lock()) }
+startCopper: c64lib_startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, List().add(c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_JSR).lock())
 outHex:     
         #import "text/lib/sub/out-hex.asm"
 
@@ -105,9 +105,9 @@ outHex:
 sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
 .align $100
 copperList:
-  copperEntry(1, c64lib.IRQH_JSR, <animateBar, >animateBar)
-  rasterIrqh: copperEntry(102, c64lib.IRQH_BG_RASTER_BAR, <barDef1, >barDef1)
-  copperLoop()
+  c64lib_copperEntry(1, c64lib.IRQH_JSR, <animateBar, >animateBar)
+  rasterIrqh: c64lib_copperEntry(102, c64lib.IRQH_BG_RASTER_BAR, <barDef1, >barDef1)
+  c64lib_copperLoop()
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR
