@@ -15,7 +15,7 @@
 #import "chipset/lib/vic2-global.asm"
 #import "chipset/lib/cia.asm"
 #import "text/lib/text.asm"
-#import "text/lib/scroll1x1.asm"
+#import "text/lib/scroll1x1-global.asm"
 #import "common/lib/mem-global.asm"
 #import "common/lib/invoke-global.asm"
 #import "../lib/copper64-global.asm"
@@ -235,7 +235,7 @@ startCopper:    c64lib_startCopper(
                                         DISPLAY_LIST_PTR_LO, 
                                         LIST_PTR, 
                                         List().add(c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_HSCROLL_MAP).lock())
-scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
+scroll:         c64lib_scroll1x1(SCROLL_TEMP)
 outHex:         
                 #import "text/lib/sub/out-hex.asm"
 outText:        
