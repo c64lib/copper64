@@ -9,7 +9,7 @@
  * GIT repo:  https://github.com/c64lib/copper64
  */
 #import "chipset/lib/mos6510.asm"
-#import "chipset/lib/vic2.asm"
+#import "chipset/lib/vic2-global.asm"
 #import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
 #import "common/lib/invoke-global.asm"
@@ -55,10 +55,16 @@ drawMarks: {
   sta counterPtr
   
 nextRow:
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
-  add16(38, screenPtr)
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
-  add16(2, screenPtr)
+  c64lib_pushParamW(counterPtr); 
+  c64lib_pushParamWInd(screenPtr); 
+  jsr outHex
+  
+  c64lib_add16(38, screenPtr)
+  c64lib_pushParamW(counterPtr); 
+  c64lib_pushParamWInd(screenPtr); 
+  jsr outHex
+  
+  c64lib_add16(2, screenPtr)
   inc counterPtr
   lda counterPtr
   cmp #25
@@ -75,10 +81,10 @@ screenPtr:  .word SCREEN_PTR
 
 .align $100
 copperList: {
-  c64lib_copperEntry(85, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(0, 0))
-  c64lib_copperEntry(133, c64lib.IRQH_MODE_MEM, 0, getTextMemory(1, 2))
-  c64lib_copperEntry(166, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM, getTextMemory(0, 2))
-  c64lib_copperEntry(177, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM | c64lib.CONTROL_1_BMM, getBitmapMemory(0, 1))
-  c64lib_copperEntry(213, c64lib.IRQH_MODE_MEM, 0, getTextMemory(1, 2))
+  c64lib_copperEntry(85, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, c64lib_getBitmapMemory(0, 0))
+  c64lib_copperEntry(133, c64lib.IRQH_MODE_MEM, 0, c64lib_getTextMemory(1, 2))
+  c64lib_copperEntry(166, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM, c64lib_getTextMemory(0, 2))
+  c64lib_copperEntry(177, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_2_MCM | c64lib.CONTROL_1_BMM, c64lib_getBitmapMemory(0, 1))
+  c64lib_copperEntry(213, c64lib.IRQH_MODE_MEM, 0, c64lib_getTextMemory(1, 2))
   c64lib_copperLoop()
 }

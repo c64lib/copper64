@@ -9,7 +9,7 @@
  * GIT repo:  https://github.com/c64lib/copper64
  */
 #import "chipset/lib/mos6510.asm"
-#import "chipset/lib/vic2.asm"
+#import "chipset/lib/vic2-global.asm"
 #import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
 #import "common/lib/invoke-global.asm"
@@ -86,10 +86,10 @@ drawMarks: {
   sta counterPtr
   
 nextRow:
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
-  add16(38, screenPtr)
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
-  add16(2, screenPtr)
+  c64lib_pushParamW(counterPtr); c64lib_pushParamWInd(screenPtr); jsr outHex
+  c64lib_add16(38, screenPtr)
+  c64lib_pushParamW(counterPtr); c64lib_pushParamWInd(screenPtr); jsr outHex
+  c64lib_add16(2, screenPtr)
   inc counterPtr
   lda counterPtr
   cmp #25

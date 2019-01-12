@@ -12,7 +12,7 @@
 // #define VISUAL_DEBUG
 
 #import "chipset/lib/mos6510.asm"
-#import "chipset/lib/vic2.asm"
+#import "chipset/lib/vic2-global.asm"
 #import "chipset/lib/cia.asm"
 #import "text/lib/text.asm"
 #import "text/lib/scroll1x1.asm"
@@ -146,9 +146,9 @@ initScroll: {
 }
   
 playMusic: {
-  debugBorderStart()
+  c64lib_debugBorderStart()
   jsr music.play
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 }
 
@@ -161,17 +161,17 @@ initSound: {
 }
 
 doScroll: {
-  debugBorderStart()
+  c64lib_debugBorderStart()
   lda SCROLL_OFFSET
   cmp #$00
   bne decOffset
   lda #7
   sta SCROLL_OFFSET
-  pushParamW(SCREEN_PTR + SCROLL_POSITION_OFFSET)
-  pushParamW(scrollText)
-  pushParamWInd(scrollPtr)
+  c64lib_pushParamW(SCREEN_PTR + SCROLL_POSITION_OFFSET)
+  c64lib_pushParamW(scrollText)
+  c64lib_pushParamWInd(scrollPtr)
   jsr scroll
-  pullParamW(scrollPtr)
+  c64lib_pullParamW(scrollPtr)
   jmp fineScroll
 decOffset:
   sbc #1
@@ -179,15 +179,15 @@ decOffset:
 fineScroll:
   lda SCROLL_OFFSET
   sta hscroll + 2
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 }
 
 doColorCycle: {
-  debugBorderStart()
+  c64lib_debugBorderStart()
   
   // tech tech
-  pushParamW(hscrollMapDef)
+  c64lib_pushParamW(hscrollMapDef)
   ldx #(TECH_TECH_WIDTH-1)
   jsr rotateMemRight
   
@@ -196,21 +196,21 @@ doColorCycle: {
   lda CYCLE_CNTR
   cmp #4
   beq doCycle
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 doCycle:
   lda #0
   sta CYCLE_CNTR
-  pushParamW(colorCycleDef + 1)
+  c64lib_pushParamW(colorCycleDef + 1)
   ldx #6
   jsr rotateMemRight
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 }
 unpack: {
-  pushParamW(musicData)
-  pushParamW(music.location)
-  pushParamW(music.size)
+  c64lib_pushParamW(musicData)
+  c64lib_pushParamW(music.location)
+  c64lib_pushParamW(music.size)
   jsr copyLargeMemForward
   rts
 }

@@ -11,7 +11,7 @@
 #import "common/lib/invoke.asm"
 #import "common/lib/mem.asm"
 #import "chipset/lib/mos6510.asm"
-#import "chipset/lib/vic2.asm"
+#import "chipset/lib/vic2-global.asm"
 #import "chipset/lib/cia.asm"
 #import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
@@ -60,21 +60,24 @@ initCopper: {
   
 drawMarks: {
 
-  pushParamW(helloWorld); pushParamW(SCREEN_PTR + getTextOffset(10, 14)); 
+  c64lib_pushParamW(helloWorld); 
+  c64lib_pushParamW(SCREEN_PTR + c64lib_getTextOffset(10, 14)); 
   jsr outText
   
   lda #$00
   sta counterPtr
   
 nextRow:
-  pushParamW(counterPtr); pushParamWInd(screenPtr)
+  c64lib_pushParamW(counterPtr); 
+  c64lib_pushParamWInd(screenPtr)
   jsr outHex
   
-  add16(38, screenPtr)
-  pushParamW(counterPtr); pushParamWInd(screenPtr)
+  c64lib_add16(38, screenPtr)
+  c64lib_pushParamW(counterPtr); 
+  c64lib_pushParamWInd(screenPtr)
   jsr outHex
   
-  add16(2, screenPtr)
+  c64lib_add16(2, screenPtr)
   inc counterPtr
   lda counterPtr
   cmp #25
