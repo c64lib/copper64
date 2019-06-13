@@ -1,13 +1,7 @@
 language: asm
 sudo: false
-before_install:
-  - source <(curl -SLs https://raw.githubusercontent.com/c64lib/travis-ci/master/install.sh)
 script:
-  - cpm common https://github.com/c64lib/common/archive/develop.tar.gz
-  - cpm chipset https://github.com/c64lib/chipset/archive/develop.tar.gz 
-  - cpm text https://github.com/c64lib/text/archive/develop.tar.gz 
-  - kall lib
-  - kall examples
+  - ./gradlew
 notifications:
   email:
     on_success: change
