@@ -14,8 +14,8 @@ retroProject {
     libDirs = ["..", ".ra/deps/c64lib"]
     srcDirs = ["lib", "examples"]
 
-    libFromGitHub "c64lib/common", "0.2.0"
-    libFromGitHub "c64lib/chipset", "0.2.0"
-    libFromGitHub "c64lib/text", "0.2.0"
+    libFromGitHub "c64lib/common", "develop"
+    libFromGitHub "c64lib/chipset", "develop"
+    libFromGitHub "c64lib/text", "develop"
 }
 
