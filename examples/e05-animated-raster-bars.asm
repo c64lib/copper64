@@ -8,16 +8,12 @@
  * (c):       2018
  * GIT repo:  https://github.com/c64lib/copper64
  */
- 
-#define IRQH_BG_RASTER_BAR
-#define IRQH_JSR
-
 #import "chipset/lib/mos6510.asm"
-#import "chipset/lib/vic2.asm"
+#import "chipset/lib/vic2-global.asm"
 #import "text/lib/text.asm"
 #import "common/lib/math-global.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
@@ -90,10 +86,10 @@ drawMarks: {
   sta counterPtr
   
 nextRow:
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
-  add16(38, screenPtr)
-  pushParamW(counterPtr); pushParamWInd(screenPtr); jsr outHex
-  add16(2, screenPtr)
+  c64lib_pushParamW(counterPtr); c64lib_pushParamWInd(screenPtr); jsr outHex
+  c64lib_add16(38, screenPtr)
+  c64lib_pushParamW(counterPtr); c64lib_pushParamWInd(screenPtr); jsr outHex
+  c64lib_add16(2, screenPtr)
   inc counterPtr
   lda counterPtr
   cmp #25
@@ -101,7 +97,7 @@ nextRow:
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+startCopper: c64lib_startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR, List().add(c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_JSR).lock())
 outHex:     
         #import "text/lib/sub/out-hex.asm"
 
@@ -109,9 +105,9 @@ outHex:
 sineData:   .fill 256, round(100 + 50*sin(toRadians(i*360/256)))
 .align $100
 copperList:
-  copperEntry(1, c64lib.IRQH_JSR, <animateBar, >animateBar)
-  rasterIrqh: copperEntry(102, c64lib.IRQH_BG_RASTER_BAR, <barDef1, >barDef1)
-  copperLoop()
+  c64lib_copperEntry(1, c64lib.IRQH_JSR, <animateBar, >animateBar)
+  rasterIrqh: c64lib_copperEntry(102, c64lib.IRQH_BG_RASTER_BAR, <barDef1, >barDef1)
+  c64lib_copperLoop()
 
 counterPtr: .byte 0
 screenPtr:  .word SCREEN_PTR

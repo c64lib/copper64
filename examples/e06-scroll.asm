@@ -10,19 +10,15 @@
  */
  
 // #define VISUAL_DEBUG
-#define IRQH_BG_RASTER_BAR
-#define IRQH_HSCROLL
-#define IRQH_JSR
-#define IRQH_HSCROLL_MAP
 
 #import "chipset/lib/mos6510.asm"
-#import "chipset/lib/vic2.asm"
+#import "chipset/lib/vic2-global.asm"
 #import "chipset/lib/cia.asm"
-#import "text/lib/text.asm"
-#import "text/lib/scroll1x1.asm"
+#import "text/lib/text-global.asm"
+#import "text/lib/scroll1x1-global.asm"
 #import "common/lib/mem-global.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 // zero page addresses
 .label DISPLAY_LIST_PTR_LO = $02
@@ -150,9 +146,9 @@ initScroll: {
 }
   
 playMusic: {
-  debugBorderStart()
+  c64lib_debugBorderStart()
   jsr music.play
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 }
 
@@ -165,17 +161,17 @@ initSound: {
 }
 
 doScroll: {
-  debugBorderStart()
+  c64lib_debugBorderStart()
   lda SCROLL_OFFSET
   cmp #$00
   bne decOffset
   lda #7
   sta SCROLL_OFFSET
-  pushParamW(SCREEN_PTR + SCROLL_POSITION_OFFSET)
-  pushParamW(scrollText)
-  pushParamWInd(scrollPtr)
+  c64lib_pushParamW(SCREEN_PTR + SCROLL_POSITION_OFFSET)
+  c64lib_pushParamW(scrollText)
+  c64lib_pushParamWInd(scrollPtr)
   jsr scroll
-  pullParamW(scrollPtr)
+  c64lib_pullParamW(scrollPtr)
   jmp fineScroll
 decOffset:
   sbc #1
@@ -183,15 +179,15 @@ decOffset:
 fineScroll:
   lda SCROLL_OFFSET
   sta hscroll + 2
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 }
 
 doColorCycle: {
-  debugBorderStart()
+  c64lib_debugBorderStart()
   
   // tech tech
-  pushParamW(hscrollMapDef)
+  c64lib_pushParamW(hscrollMapDef)
   ldx #(TECH_TECH_WIDTH-1)
   jsr rotateMemRight
   
@@ -200,21 +196,21 @@ doColorCycle: {
   lda CYCLE_CNTR
   cmp #4
   beq doCycle
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 doCycle:
   lda #0
   sta CYCLE_CNTR
-  pushParamW(colorCycleDef + 1)
+  c64lib_pushParamW(colorCycleDef + 1)
   ldx #6
   jsr rotateMemRight
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 }
 unpack: {
-  pushParamW(musicData)
-  pushParamW(music.location)
-  pushParamW(music.size)
+  c64lib_pushParamW(musicData)
+  c64lib_pushParamW(music.location)
+  c64lib_pushParamW(music.size)
   jsr copyLargeMemForward
   rts
 }
@@ -222,21 +218,24 @@ endOfCode:
 
 .align $100
 copperList:
-  copperEntry(0, c64lib.IRQH_JSR, <doScroll, >doScroll)
-  copperEntry(25, c64lib.IRQH_JSR, <doColorCycle, >doColorCycle)
-  copperEntry(LOGO_LINE, c64lib.IRQH_HSCROLL_MAP, <hscrollMapDef, >hscrollMapDef)
-  copperEntry(CREDITS_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
-  copperEntry(CREDITS_COLOR_BARS_LINE + 16, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
-  hscroll: copperEntry(SCROLL_HSCROLL_LINE_START, c64lib.IRQH_HSCROLL, 5, 0)
-  copperEntry(SCROLL_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <scrollBarDef, >scrollBarDef)
-  copperEntry(SCROLL_HSCROLL_LINE_END, c64lib.IRQH_HSCROLL, 0, 0)
+  c64lib_copperEntry(0, c64lib.IRQH_JSR, <doScroll, >doScroll)
+  c64lib_copperEntry(25, c64lib.IRQH_JSR, <doColorCycle, >doColorCycle)
+  c64lib_copperEntry(LOGO_LINE, c64lib.IRQH_HSCROLL_MAP, <hscrollMapDef, >hscrollMapDef)
+  c64lib_copperEntry(CREDITS_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
+  c64lib_copperEntry(CREDITS_COLOR_BARS_LINE + 16, c64lib.IRQH_BG_RASTER_BAR, <colorCycleDef, >colorCycleDef)
+  hscroll: c64lib_copperEntry(SCROLL_HSCROLL_LINE_START, c64lib.IRQH_HSCROLL, 5, 0)
+  c64lib_copperEntry(SCROLL_COLOR_BARS_LINE, c64lib.IRQH_BG_RASTER_BAR, <scrollBarDef, >scrollBarDef)
+  c64lib_copperEntry(SCROLL_HSCROLL_LINE_END, c64lib.IRQH_HSCROLL, 0, 0)
 
-  copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
-  copperLoop()
+  c64lib_copperEntry(257, c64lib.IRQH_JSR, <playMusic, >playMusic)
+  c64lib_copperLoop()
 
 // library hosted functions
-startCopper:    .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
-scroll:         .namespace c64lib { _scroll1x1(SCROLL_TEMP) }
+startCopper:    c64lib_startCopper(
+                                        DISPLAY_LIST_PTR_LO, 
+                                        LIST_PTR, 
+                                        List().add(c64lib.IRQH_BG_RASTER_BAR, c64lib.IRQH_HSCROLL, c64lib.IRQH_JSR, c64lib.IRQH_HSCROLL_MAP).lock())
+scroll:         c64lib_scroll1x1(SCROLL_TEMP)
 outHex:         
                 #import "text/lib/sub/out-hex.asm"
 outText:        
@@ -253,7 +252,7 @@ endOfLibs:
 
 // variables
 screenPtr:      .word SCREEN_PTR
-scrollText:     incText(
+scrollText:     c64lib_incText(
                     "  3...      2...      1...      go!      "
                     +"hi folks! this simple intro has been written to demonstrate capabilities of copper64 library "
                     +"which is a part of c64lib project. there's little tech tech animation of ascii logo, some old shool "
@@ -261,8 +260,8 @@ scrollText:     incText(
                     +"https://github.com/c64lib     that's all for now, i don't have any more ideas for this text.                 ", 
                     128) 
                 .byte $ff
-creditsText1:   incText("          code by  maciek malecki", 128); .byte $ff
-creditsText2:   incText("         music by  jeroen tel", 128); .byte $ff                
+creditsText1:   c64lib_incText("          code by  maciek malecki", 128); .byte $ff
+creditsText2:   c64lib_incText("         music by  jeroen tel", 128); .byte $ff                
 logoLine1:      .text " ---===--- ---===--- ---===--- ---===-  "
                 .text " ccc 666 4 4 l   i bbb ddd eee mmm ooo  "
                 .text " c   6 6 444 l   i b b d d e   m m o o  "

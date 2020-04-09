@@ -1,11 +1,13 @@
-# copper64
+# c64lib/copper64
+
+## Build status
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CircleCI](https://circleci.com/gh/c64lib/copper64/tree/master.svg?style=svg)](https://circleci.com/gh/c64lib/copper64/tree/master)
+[![CircleCI](https://circleci.com/gh/c64lib/copper64/tree/develop.svg?style=svg)](https://circleci.com/gh/c64lib/copper64/tree/develop)
+[![Gitter](https://badges.gitter.im/c64lib/community.svg)](https://gitter.im/c64lib/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 A library that realizes a copper-like functionality of firing certain predefined handlers 
 at programmable raster lines. This library utilizes raster interrupt functionality of VIC-II.
-
-## Build status
-
-* master: [![Build Status](https://travis-ci.org/c64lib/copper64.svg?branch=master)](https://travis-ci.org/c64lib/copper64)
 
 # Usage
 ## Using as KickAssembler library
@@ -426,4 +428,8 @@ Control byte (CTRL) has following meaning:
 	<tr><td>b5</td><td>reserved</td></tr>
 	<tr><td>b4..0</td><td>function - 1..31</td></tr>
 </table>
-	
+
+# Change log	
+## Changes in 0.2.0
+
+* Public symbols defined as global in "-global.asm" file

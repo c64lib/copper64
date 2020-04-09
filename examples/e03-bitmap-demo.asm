@@ -8,17 +8,11 @@
  * (c):       2018
  * GIT repo:  https://github.com/c64lib/copper64
  */
- 
-#define IRQH_MODE_MEM
-#define IRQH_BG_COL_0
-#define IRQH_JSR
-#define VISUAL_DEBUG
-
 #import "chipset/lib/mos6510.asm"
-#import "chipset/lib/vic2.asm"
+#import "chipset/lib/vic2-global.asm"
 #import "text/lib/text.asm"
 #import "common/lib/invoke-global.asm"
-#import "../lib/copper64.asm"
+#import "../lib/copper64-global.asm"
 
 .label DISPLAY_LIST_PTR_LO = $02
 .label DISPLAY_LIST_PTR_HI = $03
@@ -61,7 +55,7 @@ start:
   lda #DELAY
   sta ANIMATION_DELAY_COUNTER
 
-  pushParamW(c64lib.COLOR_RAM)
+  c64lib_pushParamW(c64lib.COLOR_RAM)
   lda #LIGHT_GREY
   jsr fillScreen
 
@@ -70,7 +64,7 @@ start:
   lda #BLACK
   sta c64lib.BORDER_COL
   
-  pushParamW($6400)
+  c64lib_pushParamW($6400)
   lda #$01
   jsr fillScreen
      
@@ -82,21 +76,21 @@ block:
 unpack: {
 
   // unpack charset
-  pushParamW(charsetPacked)
-  pushParamW($6800)
-  pushParamW(16)
+  c64lib_pushParamW(charsetPacked)
+  c64lib_pushParamW($6800)
+  c64lib_pushParamW(16)
   jsr copyLargeMemForward
   
   // unpack screen mem
-  pushParamW(screenPacked)
-  pushParamW($6000)
-  pushParamW(gfx.getScreenSize())
+  c64lib_pushParamW(screenPacked)
+  c64lib_pushParamW($6000)
+  c64lib_pushParamW(gfx.getScreenSize())
   jsr copyLargeMemForward
   
   // unpack bitmap
-  pushParamW(bitmapPacked)
-  pushParamW($4000)
-  pushParamW(gfx.getBitmapSize())
+  c64lib_pushParamW(bitmapPacked)
+  c64lib_pushParamW($4000)
+  c64lib_pushParamW(gfx.getBitmapSize())
   jsr copyLargeMemForward
   
   rts
@@ -111,10 +105,10 @@ initCopper: {
 }
 
 animateCharset: {
-  debugBorderStart()
+  c64lib_debugBorderStart()
   dec ANIMATION_DELAY_COUNTER
   beq next
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 next:
   lda #DELAY
@@ -137,11 +131,14 @@ next:
   sta CHARSET+6
   lda ANIMATE_BUFFER
   sta CHARSET+7
-  debugBorderEnd()
+  c64lib_debugBorderEnd()
   rts
 }
 
-startCopper: .namespace c64lib { _startCopper(DISPLAY_LIST_PTR_LO, LIST_PTR) }
+startCopper: c64lib_startCopper(
+                                    DISPLAY_LIST_PTR_LO, 
+                                    LIST_PTR, 
+                                    List().add(c64lib.IRQH_MODE_MEM, c64lib.IRQH_BG_COL_0, c64lib.IRQH_JSR).lock())
 fillScreen:
                 #import "common/lib/sub/fill-screen.asm"
 copyLargeMemForward: 
@@ -153,14 +150,14 @@ here:
 
 .align $100
 copperList: {
-  copperEntry(11, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
-  copperEntry(52, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
-  copperEntry(56, c64lib.IRQH_BG_COL_0, BLUE, 0)
-  copperEntry(113, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
-  copperEntry(193, c64lib.IRQH_MODE_MEM, 0, getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
-  copperEntry(241, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
-  copperEntry(246, c64lib.IRQH_BG_COL_0, GREY, 0)
-  copperLoop()
+  c64lib_copperEntry(11, c64lib.IRQH_JSR, <animateCharset, >animateCharset)
+  c64lib_copperEntry(52, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
+  c64lib_copperEntry(56, c64lib.IRQH_BG_COL_0, BLUE, 0)
+  c64lib_copperEntry(113, c64lib.IRQH_MODE_MEM, c64lib.CONTROL_1_BMM, c64lib_getBitmapMemory(BITMAP_SCREEN_BANK, BITMAP_BANK))
+  c64lib_copperEntry(193, c64lib.IRQH_MODE_MEM, 0, c64lib_getTextMemory(TEXT_SCREEN_BANK, TEXT_CHARSET_BANK))
+  c64lib_copperEntry(241, c64lib.IRQH_BG_COL_0, DARK_GREY, 0)
+  c64lib_copperEntry(246, c64lib.IRQH_BG_COL_0, GREY, 0)
+  c64lib_copperLoop()
 }
 
 .print bitmapPacked
