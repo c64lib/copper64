@@ -602,6 +602,6 @@ jumpTableEnd:
  */
 .macro stopCopper() {
 	lda #0
-	sta IRR
+	sta IMR
 	rts
 }
