@@ -1,7 +1,7 @@
 /*
  * c64lib/copper64/copper64.asm
  *
- * A library that realizes a copper-like functionality of firing certain predefined handlers 
+ * A library that realizes a copper-like functionality of firing certain predefined handlers
  * at programmable raster lines. This library utilizes raster interrupt functionality of VIC-II.
  *
  * Author:    Maciej Malecki
@@ -65,9 +65,9 @@
  * preserveA - preserve accumulator value or nots
  */
 .macro _stabilize(secondIrqHandler, commonEnd, preserveA) {
-  .if(preserveA) tax 
+  .if(preserveA) tax
   lda #<secondIrqHandler
-  sta IRQ_LO  
+  sta IRQ_LO
   lda #>secondIrqHandler
   sta IRQ_HI
   .if(preserveA) txa
@@ -94,7 +94,7 @@
  * Timing:   count * 7 - 1 (cycles)
  * MOD: X
  */
-.macro _cycleDelay(count) { 
+.macro _cycleDelay(count) {
   ldx #count  // 2, 2
   dex         // 2, 1
   bne *-1     // 3(2), 2 - max 3 if on the same page
@@ -102,7 +102,7 @@
 
 /*
  * Length: 15 bytes
- * Timing: count * 7 + 10 + 2(3) 
+ * Timing: count * 7 + 10 + 2(3)
  */
 .macro _cycleRaster(count) {// length 15 bytes
   ldx #count  // 2, 2
@@ -169,7 +169,7 @@
  */
 .macro copperEntry(raster, handler, arg1, arg2) {
   .if (raster >= 256) {
-    .byte 128 + handler  
+    .byte 128 + handler
   }  else {
     .byte handler
   }
@@ -191,8 +191,8 @@
  * hosted subroutine and as such can be then called many times. It is handy, when one need to disable
  * copper functionality and then relaunch it again. Once called again, display list pointer is reset to 0.
  *
- * This is handy when one need to change display list (for next demo part for instance, or from game title 
- * screen to in-game screen). To achieve this one needs to stop copper by launching hosted subroutine 
+ * This is handy when one need to change display list (for next demo part for instance, or from game title
+ * screen to in-game screen). To achieve this one needs to stop copper by launching hosted subroutine
  * _stopCopper, change copper list address specified by listStart (zero page) and relaunch by calling
  * _startCopper again.
  *
@@ -200,7 +200,7 @@
  *
  * listStart - begin address of display list stored on zero page
  * listPtr - address for Y reg storage
- * handlersList - KA List with handler codes 
+ * handlersList - KA List with handler codes
  */
 .macro startCopper(listStart, listPtr, handlersList) {
   .var handlers = _handlersToHashmap(handlersList)
@@ -223,10 +223,10 @@ accu1:
   .byte $00
 accu2:
   .byte $00
-  
+
 commonEnd:
   _stabilizeCommonEnd()
-  
+
 copperIrq:                    // major interrupt handler for copper64; interrupt not stabilized at this point
   pha
   tya
@@ -254,7 +254,7 @@ fetchNext:                      // fetch new copper list item, y should point at
   beq skip                      // 2: if #$FF then skip copper list position
   rol                           // 2
   lda CONTROL_1                 // 4:
-  bcs raster8                   // 2: 7 bit set means we use 8th bit of raster irq 
+  bcs raster8                   // 2: 7 bit set means we use 8th bit of raster irq
   and #neg(CONTROL_1_RASTER8)   // 2: 7..0 bits are enough for raster irq
   jmp nextRaster8               // 3
 raster8:
@@ -290,7 +290,7 @@ irqHandlers:
   irqh1:                              // (?) border color; stable + jitter; +1 raster
     .if (_has(handlers, IRQH_BORDER_COL)) {
       _stabilize(irqh1Stabilized, commonEnd, false)
-    irqh1Stabilized:                  // 7 + 0(1) 
+    irqh1Stabilized:                  // 7 + 0(1)
       txs                             // 2
       _cycleDelay(8)                   // cycle delay
       nop                             // potentially 1 extra cycle to save
@@ -484,7 +484,7 @@ irqHandlers:
       sta rasterList + 2
       ldx #0
       sty listPtr
-      
+
       rasterList: lda $ffff, x  // 4(5)
       cmp #$ff                  // 2
       beq end                   // 2
@@ -509,7 +509,10 @@ irqHandlers:
       sta rasterList + 2
       ldx #0
       sty listPtr
-      
+      ldy RASTER                // 4
+      preStabilize: cpy RASTER  // 4
+      beq preStabilize          // 2
+
       rasterList: lda $ffff, x  // 4(5)
       cmp #$ff                  // 2
       beq end                   // 2
@@ -549,11 +552,11 @@ irqHandlers:
       ldy RASTER                // 4
       preStabilize: cpy RASTER  // 4
       beq preStabilize          // 2
-      
+
       lda CONTROL_2
     nextLine:
       and #$11111000
-      hscrollMap: ora $ffff, x 
+      hscrollMap: ora $ffff, x
       cmp #$ff                  // 2
       beq end                   // 2
       ldy RASTER                // 4
@@ -575,11 +578,11 @@ irqHandlers:
   irqhEnd:
   .print "Size of aggregated code of IRQ handlers: " + (irqhReminder - irqHandlers) + " bytes."
   .assert "Size of aggregated code of IRQ handlers must fit into one memory page (256b)", irqhReminder - irqHandlers <= 256, true
-  
-  /* 
+
+  /*
    * Jump table for IRQ handlers.
    *
-   * For sake of efficiency, jump table only stores lo address of handler. 
+   * For sake of efficiency, jump table only stores lo address of handler.
    * It is assumed that hi address is always the same.
    */
   .if (256 - (irqhEnd - irqHandlers) < 32) {
