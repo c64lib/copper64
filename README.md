@@ -2,11 +2,11 @@
 
 ## Build status
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![CircleCI](https://circleci.com/gh/c64lib/copper64/tree/master.svg?style=svg)](https://circleci.com/gh/c64lib/copper64/tree/master)
-[![CircleCI](https://circleci.com/gh/c64lib/copper64/tree/develop.svg?style=svg)](https://circleci.com/gh/c64lib/copper64/tree/develop)
+[![CircleCI](https://circleci.com/gh/c64lib/copper64/tree/master.svg?style=shield)](https://circleci.com/gh/c64lib/copper64/tree/master)
+[![CircleCI](https://circleci.com/gh/c64lib/copper64/tree/develop.svg?style=shield)](https://circleci.com/gh/c64lib/copper64/tree/develop)
 [![Gitter](https://badges.gitter.im/c64lib/community.svg)](https://gitter.im/c64lib/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-A library that realizes a copper-like functionality of firing certain predefined handlers 
+A library that realizes a copper-like functionality of firing certain predefined handlers
 at programmable raster lines. This library utilizes raster interrupt functionality of VIC-II.
 
 # Usage
@@ -26,21 +26,21 @@ As library management system is not yet complete, you have to do several steps m
 2. Inside of this directory clone `common`, `chipset`, `text` and `copper64` libraries:
 
    git clone https://github.com/c64lib/common.git
-   
+
    git clone https://github.com/c64lib/chipset.git
-   
+
    git clone https://github.com/c64lib/text.git
-   
+
    git clone https://github.com/c64lib/copper64.git
-   
+
 3. Assuming that your KickAssembler JAR file is located under `c:\cbm\KickAss.jar` and your `c64lib` directory is located under `c:\cbm\c64lib` run assembler inside of `examples` directory:
 
-	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e01-color-raster-bars.asm 
+	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e01-color-raster-bars.asm
 	>
 	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e02-screen-modes.asm
 	>
 	> java -jar c:\cbm\KickAss.jar -libdir c:\cbm\c64lib e03-bitmap-demo.asm
-	
+
 4. In result you should get three PRG files that can be launched using VICE or transferred to real hardware and launched there.
 
 ## Define your own copper list
@@ -67,7 +67,7 @@ Let's look at following example:
 	  copperLoop()
 	}
 
-We mark beginning of the list with label (`copperList`), because we need this address later on when initializing copper64. 
+We mark beginning of the list with label (`copperList`), because we need this address later on when initializing copper64.
 
 Then we have sequence of copper entries, each taking couple of parameters. First parameter is always a raster line (we can use here numbers greater than 255, macro takes care of handling this extra bit). It is up to coder to ensure that these numbers are ordered and growing. If you mess up ordering, you'll get junk on the screen - you have been warned.
 
@@ -85,7 +85,7 @@ Second attribute to the entry is always a handler code. All supported handlers a
 	#import "chipset/lib/vic2.asm"
 	#import "text/lib/text.asm"
 	#import "copper64/lib/copper64.asm"
- 
+
 As you see you can do it with `#define` directive. Just make sure that you define all of them before importing `copper64.asm`, otherwise it will not work.
 
 Next two parameters have different meaning depending on the handler.
@@ -101,7 +101,7 @@ Changes border color to WHITE in line 46. In this case last parameter is not use
 Changes border color to RED and background color to BLUE in line 232.
 
 	copperEntry(257, c64lib.IRQH_JSR, <custom1, >custom1)
-	
+
 Launches custom subroutine at line 257, address of this subroutine is specified in last two parameters.
 
 ## Initialize IRQ system
@@ -429,7 +429,12 @@ Control byte (CTRL) has following meaning:
 	<tr><td>b4..0</td><td>function - 1..31</td></tr>
 </table>
 
-# Change log	
+# Change log
+
+## Changes in 0.3.0
+
+* Prestabilization in BG raster bar (helps with NTSC stability).
+
 ## Changes in 0.2.0
 
-* Public symbols defined as global in "-global.asm" file
+* Public symbols defined as global in `-global.asm` file.
