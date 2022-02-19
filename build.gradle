@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.c64lib.retro-assembler" version "1.4.5"
+    id "com.github.c64lib.retro-assembler" version "1.5.2"
 }
 
 repositories {
@@ -8,11 +8,11 @@ repositories {
 
 retroProject {
     dialect = "KickAssembler"
-    dialectVersion = "5.22"
+    dialectVersion = "5.24"
     libDirs = [".ra/deps/c64lib"]
     srcDirs = ["lib", "examples"]
 
     libFromGitHub "c64lib/common", "0.3.0"
     libFromGitHub "c64lib/chipset", "0.3.0"
-    libFromGitHub "c64lib/text", "develop" // examples only
+    libFromGitHub "c64lib/text", "0.3.0" // examples only
 }

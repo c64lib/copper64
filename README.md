@@ -433,7 +433,7 @@ Control byte (CTRL) has following meaning:
 
 ## Changes in 0.3.0
 
-* Prestabilization in BG raster bar.
+* Prestabilization in BG raster bar (helps with NTSC stability).
 
 ## Changes in 0.2.0
 
