@@ -597,8 +597,6 @@ irqHandlers:
   }
   irqh20: { // dashboard cutoff (for game "Tony": turn off sprites, stabilize, set BG color to arg1, set memory control to arg2)
     .if (_has(handlers, IRQH_DASHBOARD_CUTOFF)) {
-      lda #0
-      sta SPRITE_ENABLE
       lda (listStart),y           // 5 ,  A -> BG COLOR
       sty listPtr
       ldy RASTER
