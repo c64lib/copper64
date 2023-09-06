@@ -75,6 +75,7 @@
 .label IRQH_HSCROLL_MAP			    = 19
 .label IRQH_DASHBOARD_CUTOFF    = 20
 .label IRQH_VSCROLL             = 21
+.label IRQH_VSCROLL_NTSC        = 22
 
 .label IRQH_CTRL_RASTER8        = %10000000
 .label IRQH_SKIP                = $00
@@ -621,6 +622,23 @@ irqHandlers:
       lda (listStart),y           // 5 ,  A -> Control 1
       sty listPtr
       ldy RASTER
+      preStabilize: cpy RASTER
+      beq preStabilize
+
+      sta CONTROL_1 // 4
+      ldy listPtr   // 3
+      iny           // 2
+      lda (listStart),y // *5
+      sta MEMORY_CONTROL // *4
+      jmp irqhReminder2Args
+    }
+  }
+  irqh22: {
+    .if(_has(handlers, IRQH_VSCROLL_NTSC)) {
+      lda (listStart),y           // 5 ,  A -> Control 1
+      sty listPtr
+      ldy RASTER
+      nop
       preStabilize: cpy RASTER
       beq preStabilize
 
