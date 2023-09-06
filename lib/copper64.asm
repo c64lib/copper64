@@ -676,7 +676,7 @@ jumpTable:
   .print "Jump table starts at: " + toHexString(jumpTable)
   .byte $00, <irqh1, <irqh2, <irqh3, <irqh4, <irqh5, <irqh6, <irqh7 // position 0 is never used
   .byte <irqh8, <irqh9, <irqh10, <irqh11, <irqh12, <irqh13, <irqh14, <irqh15
-  .byte <irqh16, <irqh17, <irqh18, <irqh19, <irqh20, <irqh21
+  .byte <irqh16, <irqh17, <irqh18, <irqh19, <irqh20, <irqh21, <irqh22
 jumpTableEnd:
   .print "Jump table size: " + [jumpTableEnd - jumpTable] + " bytes."
   .assert "Size of Jump table must fit into one memory page (256b)", jumpTableEnd - jumpTable <= 256, true
