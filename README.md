@@ -431,6 +431,13 @@ Control byte (CTRL) has following meaning:
 
 # Change log
 
+## Changes in 0.5.0
+
+* New handler: `IRQH_DASHBOARD_CUTOFF`
+* New handler: `IRQH_VSCROLL`
+* New handler: `IRQH_VSCROLL_NTSC`
+
+## Changes in 0.4.0
 ## Changes in 0.3.0
 
 * Prestabilization in BG raster bar (helps with NTSC stability).
