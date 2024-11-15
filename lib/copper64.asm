@@ -73,7 +73,7 @@
 
 .label IRQH_HSCROLL             = 18
 .label IRQH_HSCROLL_MAP			    = 19
-.label IRQH_DASHBOARD_CUTOFF    = 20
+.label IRQH_MEMORY_CONTROL      = 20
 .label IRQH_VSCROLL             = 21
 .label IRQH_VSCROLL_NTSC        = 22
 
@@ -601,20 +601,17 @@ irqHandlers:
       jmp irqhReminder2Args
   	}
   }
-  irqh20: { // dashboard cutoff (for game "Tony": turn off sprites, stabilize, set BG color to arg1, set memory control to arg2)
-    .if (_has(handlers, IRQH_DASHBOARD_CUTOFF)) {
-      lda (listStart),y           // 5 ,  A -> BG COLOR
-      sty listPtr
-      ldy RASTER
-      preStabilize: cpy RASTER
+  irqh20: {
+    .if (_has(handlers, IRQH_MEMORY_CONTROL)) {
+      // prepare
+      lda (listStart),y // *5
+      // stabilize
+      ldx RASTER
+      preStabilize: cpx RASTER
       beq preStabilize
-
-      sta BG_COL_0                // 4
-      ldy listPtr
-      iny                         // 2
-      lda (listStart),y           // *5
-      sta MEMORY_CONTROL          // *4
-      jmp irqhReminder2Args
+      // do action
+      sta MEMORY_CONTROL          // 4
+      jmp irqhReminder
     }
   }
   irqh21: {

@@ -431,6 +431,10 @@ Control byte (CTRL) has following meaning:
 
 # Change log
 
+## Changes in 0.6.0
+
+* Handler `IRQH_DASHBOARD_CUTOFF` changed into more reusable `IRQH_MEMORY_CONTROL`
+
 ## Changes in 0.5.0
 
 * New handler: `IRQH_DASHBOARD_CUTOFF`
